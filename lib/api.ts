@@ -49,6 +49,77 @@ async function fetchAPI(endpoint: string, options?: RequestInit) {
 }
 
 /**
+ * Transform SkillMap API response to Portana format
+ * SkillMap returns technical_skills as array of objects with category and skills array
+ * We need to flatten this to SkillEntry[] with name, category, proficiency
+ */
+function transformSkillmapResponse(skillmapData: any): any {
+  const transformed: any = {};
+
+  // Transform skills from SkillMap format to our SkillEntry format
+  if (skillmapData.technical_skills && Array.isArray(skillmapData.technical_skills)) {
+    transformed.skills = skillmapData.technical_skills
+      .flatMap((categoryObj: any) => {
+        const category = categoryObj.category || "Other";
+        const skills = Array.isArray(categoryObj.skills) ? categoryObj.skills : [];
+        
+        return skills.map((skill: any) => {
+          if (typeof skill === "string") {
+            return {
+              name: skill,
+              category: category,
+              proficiency: "Intermediate", // Default - user will set this
+            };
+          } else if (skill && typeof skill === "object") {
+            return {
+              name: skill.name || skill.skill_name || String(skill),
+              category: category,
+              proficiency: "Intermediate", // Default - user will set this
+            };
+          }
+          return null;
+        }).filter(Boolean);
+      });
+  }
+
+  // Transform experience
+  if (skillmapData.experience && Array.isArray(skillmapData.experience)) {
+    transformed.experience = skillmapData.experience.map((exp: any) => ({
+      title: exp.title || exp.role || "Position",
+      company: exp.company || "Company",
+      duration: exp.duration || undefined,
+      description: exp.description || undefined,
+    }));
+  } else if (skillmapData.work_experience && Array.isArray(skillmapData.work_experience)) {
+    transformed.experience = skillmapData.work_experience.map((exp: any) => ({
+      title: exp.job_title || exp.title || "Position",
+      company: exp.company || "Company",
+      duration: exp.duration || undefined,
+      description: exp.description || undefined,
+    }));
+  }
+
+  // Transform education
+  if (skillmapData.education && Array.isArray(skillmapData.education)) {
+    transformed.education = skillmapData.education.map((edu: any) => ({
+      degree: edu.degree || "Degree",
+      institution: edu.institution || edu.school || "Institution",
+      field: edu.field || edu.field_of_study || undefined,
+      graduationYear: edu.graduationYear || edu.graduation_year || undefined,
+    }));
+  }
+
+  // Transform summary
+  if (skillmapData.summary) {
+    transformed.summary = skillmapData.summary;
+  } else if (skillmapData.inferred_areas_of_strength && Array.isArray(skillmapData.inferred_areas_of_strength)) {
+    transformed.summary = skillmapData.inferred_areas_of_strength.join(", ");
+  }
+
+  return transformed;
+}
+
+/**
  * Onboarding API endpoints
  */
 export const onboardingApi = {
@@ -63,42 +134,45 @@ export const onboardingApi = {
   },
 
   /**
-   * Step 2: Upload resume file (multipart/form-data)
-   * For now, sends mock resume text to the parse endpoint
+   * Step 2: Upload resume file to SkillMap API for parsing
+   * Uses the SkillMap backend at api.aahil-khan.tech
+   * POST /upload-resume with multipart/form-data
    */
   async uploadResume(file: File, sessionToken: string): Promise<any> {
-    // TODO: Implement actual PDF/DOCX text extraction
-    // For now, use mock resume text
-    const mockResumeText = `
-      Professional Summary:
-      Experienced software developer with 3+ years of experience in full-stack development.
-      
-      Skills:
-      - JavaScript/TypeScript
-      - React, Next.js, Node.js
-      - PostgreSQL, MongoDB
-      - AWS, Docker
-      
-      Experience:
-      - Senior Developer at Tech Corp (2022-Present)
-      - Full Stack Developer at StartUp Inc (2020-2022)
-      - Junior Developer at WebAgency (2019-2020)
-      
-      Education:
-      - Bachelor of Science in Computer Science
-    `;
+    const skillmapApiUrl = process.env.NEXT_PUBLIC_SKILLMAP_API_URL || "https://api.aahil-khan.tech";
+    
+    const formData = new FormData();
+    formData.append("file", file);
 
-    return this.parseResume(mockResumeText);
-  },
+    try {
+      const response = await fetch(`${skillmapApiUrl}/upload-resume`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          ...getAuthHeader(sessionToken),
+        },
+      });
 
-  /**
-   * Parse resume text
-   */
-  async parseResume(resumeText: string): Promise<any> {
-    return fetchAPI("/api/onboarding/parse-resume", {
-      method: "POST",
-      body: JSON.stringify({ resumeText }),
-    });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `SkillMap API Error ${response.status}: ${errorText || response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+      
+      // Transform SkillMap response to match our expected format
+      const transformed = transformSkillmapResponse(data);
+      console.log("[Step2] SkillMap API Response (transformed):", transformed);
+      
+      return transformed;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Failed to parse resume with SkillMap API");
+    }
   },
 
   /**
