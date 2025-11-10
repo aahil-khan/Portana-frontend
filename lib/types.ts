@@ -15,9 +15,11 @@ export interface Step1Data {
 
 export interface Step1Response {
   success: boolean;
-  user_id: string;
-  session_token: string;
-  next_step: string;
+  user_id?: string;
+  session_token?: string;
+  sessionId?: string; // Fallback for old API format
+  next_step?: string;
+  message?: string;
 }
 
 export interface ResumeData {

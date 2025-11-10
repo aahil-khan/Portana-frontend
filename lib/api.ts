@@ -64,43 +64,53 @@ export const onboardingApi = {
 
   /**
    * Step 2: Upload resume file (multipart/form-data)
+   * For now, sends mock resume text to the parse endpoint
    */
   async uploadResume(file: File, sessionToken: string): Promise<any> {
-    const formData = new FormData();
-    formData.append("file", file);
+    // TODO: Implement actual PDF/DOCX text extraction
+    // For now, use mock resume text
+    const mockResumeText = `
+      Professional Summary:
+      Experienced software developer with 3+ years of experience in full-stack development.
+      
+      Skills:
+      - JavaScript/TypeScript
+      - React, Next.js, Node.js
+      - PostgreSQL, MongoDB
+      - AWS, Docker
+      
+      Experience:
+      - Senior Developer at Tech Corp (2022-Present)
+      - Full Stack Developer at StartUp Inc (2020-2022)
+      - Junior Developer at WebAgency (2019-2020)
+      
+      Education:
+      - Bachelor of Science in Computer Science
+    `;
 
-    const url = `${API_URL}/api/onboarding/resume`;
+    return this.parseResume(mockResumeText);
+  },
 
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          ...getAuthHeader(sessionToken),
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Resume upload failed: ${response.status} - ${errorText}`
-        );
-      }
-
-      return await response.json();
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error("Failed to upload resume");
-    }
+  /**
+   * Parse resume text
+   */
+  async parseResume(resumeText: string): Promise<any> {
+    return fetchAPI("/api/onboarding/parse-resume", {
+      method: "POST",
+      body: JSON.stringify({ resumeText }),
+    });
   },
 
   /**
    * Step 2: Get parsed resume data for review
    */
   async getResumeParsed(sessionToken: string): Promise<any> {
-    return fetchAPI("/api/onboarding/resume/parsed", {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      throw new Error("User ID not found in localStorage");
+    }
+
+    return fetchAPI(`/api/onboarding/${userId}`, {
       method: "GET",
       headers: getAuthHeader(sessionToken),
     });
@@ -110,7 +120,12 @@ export const onboardingApi = {
    * Step 2: Confirm parsed resume data and proceed
    */
   async confirmResume(data: any, sessionToken: string): Promise<any> {
-    return fetchAPI("/api/onboarding/resume/confirm", {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      throw new Error("User ID not found in localStorage");
+    }
+
+    return fetchAPI(`/api/onboarding/${userId}/step/2`, {
       method: "POST",
       headers: getAuthHeader(sessionToken),
       body: JSON.stringify(data),
