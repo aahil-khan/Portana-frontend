@@ -10,11 +10,12 @@ import { Loader } from "lucide-react"
 
 export default function Step1BasicProfile({ onComplete }: { onComplete: (data: any) => void }) {
   const [formData, setFormData] = useState({
-    full_name: "",
-    bio: "",
+    name: "",
     email: "",
-    location: "",
-    timezone: "",
+    bio: "",
+    website: "",
+    githubUrl: "",
+    linkedinUrl: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -36,7 +37,7 @@ export default function Step1BasicProfile({ onComplete }: { onComplete: (data: a
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
-    if (!formData.full_name || formData.full_name.length < 2) newErrors.full_name = "Name must be at least 2 characters"
+    if (!formData.name || formData.name.length < 2) newErrors.name = "Name must be at least 2 characters"
     if (!formData.bio || formData.bio.length < 50) newErrors.bio = "Bio must be at least 50 characters"
     if (!formData.email || !formData.email.includes("@")) newErrors.email = "Please enter a valid email"
     return newErrors
@@ -58,17 +59,18 @@ export default function Step1BasicProfile({ onComplete }: { onComplete: (data: a
     setIsLoading(true)
     try {
       console.log("[Step1] Calling onboardingApi.start with data:", {
-        full_name: formData.full_name,
+        name: formData.name,
         bio: formData.bio,
         email: formData.email,
       })
 
       const response = await onboardingApi.start({
-        full_name: formData.full_name,
+        name: formData.name,
         bio: formData.bio,
         email: formData.email,
-        location: formData.location || undefined,
-        timezone: formData.timezone || undefined,
+        website: formData.website,
+        githubUrl: formData.githubUrl,
+        linkedinUrl: formData.linkedinUrl,
       })
 
       console.log("[Step1] API Response:", response)
@@ -122,15 +124,15 @@ export default function Step1BasicProfile({ onComplete }: { onComplete: (data: a
 
       <div className="space-y-4 bg-background/40 backdrop-blur-md border border-border rounded-xl p-6">
         <div>
-          <Label htmlFor="full_name">Full Name *</Label>
+          <Label htmlFor="name">Full Name *</Label>
           <Input
-            id="full_name"
+            id="name"
             placeholder="Your full name"
-            value={formData.full_name}
-            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="mt-2"
           />
-          {errors.full_name && <p className="text-red-400 text-sm mt-1">{errors.full_name}</p>}
+          {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
         </div>
 
         <div>
@@ -160,23 +162,34 @@ export default function Step1BasicProfile({ onComplete }: { onComplete: (data: a
         </div>
 
         <div>
-          <Label htmlFor="location">Location</Label>
+          <Label htmlFor="website">Website</Label>
           <Input
-            id="location"
-            placeholder="City, Country"
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            id="website"
+            placeholder="https://yourwebsite.com"
+            value={formData.website}
+            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
             className="mt-2"
           />
         </div>
 
         <div>
-          <Label htmlFor="timezone">Timezone</Label>
+          <Label htmlFor="githubUrl">GitHub Profile</Label>
           <Input
-            id="timezone"
-            placeholder="e.g., America/New_York"
-            value={formData.timezone}
-            onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+            id="githubUrl"
+            placeholder="https://github.com/yourprofile"
+            value={formData.githubUrl}
+            onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
+            className="mt-2"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="linkedinUrl">LinkedIn Profile</Label>
+          <Input
+            id="linkedinUrl"
+            placeholder="https://linkedin.com/in/yourprofile"
+            value={formData.linkedinUrl}
+            onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
             className="mt-2"
           />
         </div>
@@ -185,7 +198,7 @@ export default function Step1BasicProfile({ onComplete }: { onComplete: (data: a
       <Button
         onClick={handleSubmit}
         disabled={isLoading}
-        className="w-full bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-600 hover:to-violet-600 text-white font-semibold py-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-linear-to-r from-cyan-500 to-violet-500 hover:from-cyan-600 hover:to-violet-600 text-white font-semibold py-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {isLoading ? (
           <>

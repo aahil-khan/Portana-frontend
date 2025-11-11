@@ -83,7 +83,7 @@ export default function OnboardingPage() {
       // Format data for finalize endpoint
       const allSteps = {
         step1: {
-          name: (formData.basic as any).full_name || "",
+          name: (formData.basic as any).name || "",
           email: (formData.basic as any).email || "",
           bio: (formData.basic as any).bio || "",
           website: (formData.basic as any).website,

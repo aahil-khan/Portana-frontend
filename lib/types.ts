@@ -5,12 +5,12 @@
 // ==================== ONBOARDING TYPES ====================
 
 export interface Step1Data {
-  full_name: string;
-  bio: string;
+  name: string;
   email: string;
-  location?: string;
-  timezone?: string;
-  profile_image?: string;
+  bio?: string;
+  website?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
 }
 
 export interface Step1Response {
