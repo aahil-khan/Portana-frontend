@@ -22,34 +22,12 @@ export default function OnboardingPage() {
     deployment: {},
   })
 
-  // On mount, check if user has session token and can resume
+  // On mount, check if user has session token
   useEffect(() => {
     const token = localStorage.getItem("session_token")
     setSessionToken(token)
-
-    // Optional: Auto-recover from checkpoint
-    if (token) {
-      checkForExistingCheckpoint(token)
-    }
+    // Note: Checkpoint recovery disabled for now - test basic flow first
   }, [])
-
-  const checkForExistingCheckpoint = async (token: string) => {
-    try {
-      const checkpoint = await onboardingApi.resumeCheckpoint(token)
-      if (checkpoint.success && checkpoint.lastCompletedStep > 0) {
-        // User has progress saved, ask if they want to resume
-        console.log("[Onboarding] Checkpoint found at step", checkpoint.lastCompletedStep)
-        // Populate formData with saved checkpoint
-        if (checkpoint.data.step1) setFormData((p) => ({ ...p, basic: checkpoint.data.step1 }))
-        if (checkpoint.data.step2) setFormData((p) => ({ ...p, resume: checkpoint.data.step2 }))
-        if (checkpoint.data.step3) setFormData((p) => ({ ...p, sources: checkpoint.data.step3 }))
-        if (checkpoint.data.step4) setFormData((p) => ({ ...p, persona: checkpoint.data.step4 }))
-        if (checkpoint.data.step5) setFormData((p) => ({ ...p, deployment: checkpoint.data.step5 }))
-      }
-    } catch (err) {
-      console.warn("[Onboarding] Could not recover checkpoint:", err)
-    }
-  }
 
   const handleStepComplete = (stepData: any) => {
     const stepKey = ["basic", "resume", "sources", "persona", "deployment"][currentStep - 1]
@@ -157,7 +135,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#1a1f2e] to-[#0f1218] text-foreground">
+    <div className="min-h-screen bg-linear-to-b from-[#1a1f2e] to-[#0f1218] text-foreground">
       <OnboardingProgress currentStep={currentStep} totalSteps={5} />
 
       <div className="max-w-2xl mx-auto px-4 py-12">
