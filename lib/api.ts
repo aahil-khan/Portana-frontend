@@ -49,77 +49,6 @@ async function fetchAPI(endpoint: string, options?: RequestInit) {
 }
 
 /**
- * Transform SkillMap API response to Portana format
- * SkillMap returns technical_skills as array of objects with category and skills array
- * We need to flatten this to SkillEntry[] with name, category, proficiency
- */
-function transformSkillmapResponse(skillmapData: any): any {
-  const transformed: any = {};
-
-  // Transform skills from SkillMap format to our SkillEntry format
-  if (skillmapData.technical_skills && Array.isArray(skillmapData.technical_skills)) {
-    transformed.skills = skillmapData.technical_skills
-      .flatMap((categoryObj: any) => {
-        const category = categoryObj.category || "Other";
-        const skills = Array.isArray(categoryObj.skills) ? categoryObj.skills : [];
-        
-        return skills.map((skill: any) => {
-          if (typeof skill === "string") {
-            return {
-              name: skill,
-              category: category,
-              proficiency: "Intermediate", // Default - user will set this
-            };
-          } else if (skill && typeof skill === "object") {
-            return {
-              name: skill.name || skill.skill_name || String(skill),
-              category: category,
-              proficiency: "Intermediate", // Default - user will set this
-            };
-          }
-          return null;
-        }).filter(Boolean);
-      });
-  }
-
-  // Transform experience
-  if (skillmapData.experience && Array.isArray(skillmapData.experience)) {
-    transformed.experience = skillmapData.experience.map((exp: any) => ({
-      title: exp.title || exp.role || "Position",
-      company: exp.company || "Company",
-      duration: exp.duration || undefined,
-      description: exp.description || undefined,
-    }));
-  } else if (skillmapData.work_experience && Array.isArray(skillmapData.work_experience)) {
-    transformed.experience = skillmapData.work_experience.map((exp: any) => ({
-      title: exp.job_title || exp.title || "Position",
-      company: exp.company || "Company",
-      duration: exp.duration || undefined,
-      description: exp.description || undefined,
-    }));
-  }
-
-  // Transform education
-  if (skillmapData.education && Array.isArray(skillmapData.education)) {
-    transformed.education = skillmapData.education.map((edu: any) => ({
-      degree: edu.degree || "Degree",
-      institution: edu.institution || edu.school || "Institution",
-      field: edu.field || edu.field_of_study || undefined,
-      graduationYear: edu.graduationYear || edu.graduation_year || undefined,
-    }));
-  }
-
-  // Transform summary
-  if (skillmapData.summary) {
-    transformed.summary = skillmapData.summary;
-  } else if (skillmapData.inferred_areas_of_strength && Array.isArray(skillmapData.inferred_areas_of_strength)) {
-    transformed.summary = skillmapData.inferred_areas_of_strength.join(", ");
-  }
-
-  return transformed;
-}
-
-/**
  * Onboarding API endpoints
  */
 export const onboardingApi = {
@@ -134,18 +63,15 @@ export const onboardingApi = {
   },
 
   /**
-   * Step 2: Upload resume file to SkillMap API for parsing
-   * Uses the SkillMap backend at api.aahil-khan.tech
-   * POST /upload-resume with multipart/form-data
+   * Step 2: Upload resume file for parsing
+   * Sends multipart/form-data to our backend
    */
   async uploadResume(file: File, sessionToken: string): Promise<any> {
-    const skillmapApiUrl = process.env.NEXT_PUBLIC_SKILLMAP_API_URL || "https://api.aahil-khan.tech";
-    
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      const response = await fetch(`${skillmapApiUrl}/upload-resume`, {
+      const response = await fetch(`${API_URL}/api/onboarding/upload-resume`, {
         method: "POST",
         body: formData,
         headers: {
@@ -156,22 +82,19 @@ export const onboardingApi = {
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
-          `SkillMap API Error ${response.status}: ${errorText || response.statusText}`
+          `Resume parsing error ${response.status}: ${errorText || response.statusText}`
         );
       }
 
       const data = await response.json();
+      console.log("[Step2] Resume parsed successfully:", data);
       
-      // Transform SkillMap response to match our expected format
-      const transformed = transformSkillmapResponse(data);
-      console.log("[Step2] SkillMap API Response (transformed):", transformed);
-      
-      return transformed;
+      return data;
     } catch (error) {
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error("Failed to parse resume with SkillMap API");
+      throw new Error("Failed to parse resume");
     }
   },
 
@@ -204,6 +127,117 @@ export const onboardingApi = {
       headers: getAuthHeader(sessionToken),
       body: JSON.stringify(data),
     });
+  },
+
+  /**
+   * Checkpoint: Save partial progress at any step
+   */
+  async checkpoint(
+    sessionToken: string,
+    step: number,
+    data: any
+  ): Promise<any> {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      throw new Error("User ID not found in localStorage");
+    }
+
+    return fetchAPI(`/api/onboarding/${userId}/checkpoint`, {
+      method: "POST",
+      headers: getAuthHeader(sessionToken),
+      body: JSON.stringify({ step, data }),
+    });
+  },
+
+  /**
+   * Resume Checkpoint: Get last saved progress
+   */
+  async resumeCheckpoint(sessionToken: string): Promise<any> {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      throw new Error("User ID not found in localStorage");
+    }
+
+    return fetchAPI(`/api/onboarding/${userId}/checkpoint-resume`, {
+      method: "GET",
+      headers: getAuthHeader(sessionToken),
+    });
+  },
+
+  /**
+   * Finalize: Process all 5 steps and complete onboarding
+   */
+  async finalize(allSteps: any, sessionToken: string): Promise<any> {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      throw new Error("User ID not found in localStorage");
+    }
+
+    return fetchAPI(`/api/onboarding/${userId}/finalize`, {
+      method: "POST",
+      headers: getAuthHeader(sessionToken),
+      body: JSON.stringify(allSteps),
+    });
+  },
+
+  /**
+   * Delete: Reset session and cleanup
+   */
+  async deleteSession(sessionToken: string): Promise<any> {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      throw new Error("User ID not found in localStorage");
+    }
+
+    return fetchAPI(`/api/onboarding/${userId}`, {
+      method: "DELETE",
+      headers: getAuthHeader(sessionToken),
+    });
+  },
+
+  /**
+   * Test endpoints: Test individual steps in isolation (development only)
+   */
+  testStep: {
+    async step1(data: any, sessionId?: string): Promise<any> {
+      const id = sessionId || `test-${Date.now()}`;
+      return fetchAPI(`/api/onboarding/${id}/test/step/1`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    async step2(data: any, sessionId?: string): Promise<any> {
+      const id = sessionId || `test-${Date.now()}`;
+      return fetchAPI(`/api/onboarding/${id}/test/step/2`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    async step3(data: any, sessionId?: string): Promise<any> {
+      const id = sessionId || `test-${Date.now()}`;
+      return fetchAPI(`/api/onboarding/${id}/test/step/3`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    async step4(data: any, sessionId?: string): Promise<any> {
+      const id = sessionId || `test-${Date.now()}`;
+      return fetchAPI(`/api/onboarding/${id}/test/step/4`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    async step5(data: any, sessionId?: string): Promise<any> {
+      const id = sessionId || `test-${Date.now()}`;
+      return fetchAPI(`/api/onboarding/${id}/test/step/5`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
   },
 
   /**
