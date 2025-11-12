@@ -20,6 +20,10 @@ export default function CommandDataRenderer({
   command,
   data,
 }: CommandDataRendererProps) {
+  // Guard against undefined command or data
+  if (!command || !data) {
+    return null
+  }
   // Store data in a context/state that components can access
   // For now, we'll render placeholder content since existing components use mock data
   

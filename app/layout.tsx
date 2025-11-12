@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Space_Mono, Orbitron } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import EasterEgg from "@/components/easter-egg"
 import "./globals.css"
 
@@ -50,7 +49,6 @@ export default function RootLayout({
       <body className={`${spaceMono.className} antialiased overflow-hidden`}>
         {children}
         <EasterEgg />
-        <Analytics />
       </body>
     </html>
   )
