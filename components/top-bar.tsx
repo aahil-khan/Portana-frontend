@@ -1,8 +1,13 @@
 "use client"
 
 import { Settings } from "lucide-react"
+import MobileMenu from "./mobile-menu"
 
-export default function TopBar() {
+interface TopBarProps {
+  onNavigate?: (command: string) => void
+}
+
+export default function TopBar({ onNavigate }: TopBarProps) {
   return (
     <div className="border-b border-[#1e293b] bg-background/80 backdrop-blur-md">
       <div className="max-w-4xl mx-auto px-3 md:px-8 py-3 md:py-4 flex items-center justify-between">
@@ -10,9 +15,12 @@ export default function TopBar() {
           <div className="w-2 h-2 bg-[#00d9ff] rounded-full animate-pulse"></div>
           <h1 className="text-base md:text-lg font-display font-bold text-foreground neon-glow">Portana</h1>
         </div>
-        <button className="p-1.5 md:p-2 hover:bg-[#1a1f3a] rounded-lg transition-colors">
-          <Settings size={18} className="md:w-5 md:h-5 text-[#94a3b8]" />
-        </button>
+        <div className="flex items-center gap-2">
+          <MobileMenu onNavigate={onNavigate} />
+          <button className="hidden sm:block p-1.5 md:p-2 hover:bg-[#1a1f3a] rounded-lg transition-colors">
+            <Settings size={18} className="md:w-5 md:h-5 text-[#94a3b8]" />
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -190,7 +190,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle>((_, ref) => {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <TopBar />
+      <TopBar onNavigate={handleSendMessage} />
 
       <div className="flex-1 overflow-y-auto px-3 md:px-8 py-4 md:py-6 space-y-4 md:space-y-6">
         <div className="max-w-4xl mx-auto w-full space-y-4 md:space-y-6">
