@@ -21,7 +21,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
 
   const externalLinks = [
     { icon: Github, label: "GitHub", href: "https://github.com/aahil-khan" },
-    { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/aahilkhan" },
+    { icon: Linkedin, label: "LinkedIn", href: "https://www.linkedin.com/in/aahil-khan-015671287/" },
   ]
 
   const handleNavClick = (command: string) => {
@@ -40,23 +40,6 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
         borderRight: "1px solid rgba(255, 255, 255, 0.1)",
       }}
     >
-      {/* Identity Section */}
-      <div className="flex flex-col items-center gap-1 py-8 border-b border-white/10 w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-center"
-        >
-          <h1 className="text-xs font-bold tracking-tight neon-glow" style={{ color: "#00d9ff" }}>
-            Aahil
-          </h1>
-          <p className="text-[10px] font-medium mt-1" style={{ color: "rgba(255, 255, 255, 0.5)" }}>
-            Builder
-          </p>
-        </motion.div>
-      </div>
-
       {/* Navigation Icons */}
       <nav className="flex-1 flex flex-col items-center py-8 gap-6">
         {navLinks.map((link, idx) => {

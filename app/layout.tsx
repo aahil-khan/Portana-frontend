@@ -1,15 +1,24 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Space_Mono, Orbitron } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import EasterEgg from "@/components/easter-egg"
 import "./globals.css"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const spaceMono = Space_Mono({ 
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  variable: "--font-space-mono"
+})
+
+const orbitron = Orbitron({ 
+  weight: ["400", "700", "900"],
+  subsets: ["latin"],
+  variable: "--font-orbitron"
+})
 
 export const metadata: Metadata = {
-  title: "Aahil's Portfolio OS",
+  title: "Portana",
   description: "An AI-powered futuristic portfolio with glassmorphism and terminal aesthetics",
   generator: "v0.app",
   icons: {
@@ -37,8 +46,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans antialiased overflow-hidden`}>
+    <html lang="en" className={`${spaceMono.variable} ${orbitron.variable}`}>
+      <body className={`${spaceMono.className} antialiased overflow-hidden`}>
         {children}
         <EasterEgg />
         <Analytics />

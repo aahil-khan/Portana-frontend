@@ -8,7 +8,7 @@ const bootMessages = [
   "Loading neural pathways...",
   "Syncing knowledge nodes...",
   "Calibrating response protocols...",
-  "Aahil's Portfolio OS v1.0.0",
+  "Portana v1.0.0",
   "> Ready for interaction",
 ]
 
@@ -39,14 +39,18 @@ export default function BootScreen({ complete }: { complete: boolean }) {
       transition={{ duration: 1, delay: complete ? 0 : 0 }}
       className={`fixed inset-0 bg-gradient-to-b from-[#0a0e27] via-[#1a1f3a] to-[#0a0e27] flex items-center justify-center ${complete ? "pointer-events-none" : ""}`}
     >
-      <div className="max-w-2xl w-full px-8 font-mono">
+      <div className="max-w-2xl w-full px-8">
         <div className="space-y-2">
           {displayedLines.map((line, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-[#00d9ff] text-sm md:text-base neon-glow"
+              className={`text-[#00d9ff] text-sm md:text-base neon-glow ${
+                line.includes("v1.0.0") || line.includes("Ready") 
+                  ? "font-display text-lg md:text-xl font-bold" 
+                  : "font-mono"
+              }`}
             >
               {line}
               {i === displayedLines.length - 1 && !complete && (

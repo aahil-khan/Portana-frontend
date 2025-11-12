@@ -101,8 +101,9 @@
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
+  --font-sans: var(--font-space-mono, "Space Mono"), monospace;
   --font-mono: "JetBrains Mono", monospace;
+  --font-display: var(--font-orbitron, "Orbitron"), sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -157,6 +158,10 @@
 }
 
 @layer components {
+  .font-display {
+    font-family: var(--font-orbitron, "Orbitron"), sans-serif;
+  }
+
   .neon-glow {
     text-shadow: 0 0 10px rgba(0, 217, 255, 0.6), 0 0 20px rgba(0, 217, 255, 0.3);
   }

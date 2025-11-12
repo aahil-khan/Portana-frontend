@@ -32,7 +32,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle>((_, ref) => {
     {
       id: "1",
       content:
-        "Hey! I'm Aahil's AI portfolio assistant. Ask me about projects, experience, tech stack, or use commands like /projects, /experience, /stack, and more!",
+        "Hey! I'm Portana, Aahil's AI portfolio assistant. Ask me about projects, experience, tech stack, or use commands like /projects, /experience, /stack, and more!",
       sender: "assistant",
       timestamp: new Date(),
     },

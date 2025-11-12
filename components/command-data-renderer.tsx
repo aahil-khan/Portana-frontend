@@ -55,7 +55,7 @@ export default function CommandDataRenderer({
                   backdropFilter: "blur(10px)",
                 }}
               >
-                <h3 className="text-lg font-semibold text-[#e0e7ff] group-hover:text-[#00d9ff] transition-colors mb-2">
+                <h3 className="text-lg font-display font-bold text-[#e0e7ff] group-hover:text-[#00d9ff] transition-colors mb-2">
                   {project.title}
                 </h3>
                 {project.subtitle && (
@@ -87,7 +87,7 @@ export default function CommandDataRenderer({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
             >
-              <h3 className="text-sm font-semibold text-[#00d9ff] mb-3">
+              <h3 className="text-sm font-display font-bold text-[#00d9ff] mb-3">
                 {category.name}
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -121,7 +121,7 @@ export default function CommandDataRenderer({
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h3 className="text-base font-semibold text-[#e0e7ff]">
+                  <h3 className="text-base font-display font-bold text-[#e0e7ff]">
                     {exp.title}
                   </h3>
                   <p className="text-xs text-[#00d9ff]">{exp.company}</p>
@@ -166,7 +166,7 @@ export default function CommandDataRenderer({
                 <span className="text-xs font-mono text-[#00d9ff] font-semibold">
                   {item.date}
                 </span>
-                <h3 className="text-base font-semibold text-[#e0e7ff] mt-1">
+                <h3 className="text-base font-display font-bold text-[#e0e7ff] mt-1">
                   {item.title}
                 </h3>
                 {item.subtitle && (
