@@ -101,9 +101,9 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-space-mono, "Space Mono"), monospace;
-  --font-mono: "JetBrains Mono", monospace;
-  --font-display: var(--font-orbitron, "Orbitron"), sans-serif;
+  --font-sans: var(--font-space-mono), monospace;
+  --font-mono: var(--font-space-mono), monospace;
+  --font-display: var(--font-orbitron), sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -164,6 +164,11 @@
 
   .neon-glow {
     text-shadow: 0 0 10px rgba(0, 217, 255, 0.6), 0 0 20px rgba(0, 217, 255, 0.3);
+  }
+
+  .font-display {
+    font-family: var(--font-orbitron), sans-serif;
+    font-weight: 700;
   }
 
   .glow-cyan {
