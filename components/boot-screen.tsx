@@ -42,6 +42,7 @@ export default function BootScreen({ complete }: { complete: boolean }) {
       <div className="max-w-2xl w-full px-8">
         <div className="space-y-2">
           {displayedLines.map((line, i) => (
+            line && (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: -10 }}
@@ -63,6 +64,7 @@ export default function BootScreen({ complete }: { complete: boolean }) {
                 </motion.span>
               )}
             </motion.div>
+            )
           ))}
         </div>
       </div>
