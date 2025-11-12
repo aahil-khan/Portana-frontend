@@ -12,22 +12,20 @@ interface Message {
 
 export default function ChatMessage({ message }: { message: Message }) {
   const isAssistant = message.sender === "assistant"
-  const words = message.content.split(" ")
 
   return (
     <motion.div
       className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
     >
-      <motion.div
+      <div
         className={`
           max-w-2xl px-4 py-3 rounded-lg font-mono text-sm leading-relaxed
           ${
             isAssistant
-              ? /* Replace glass class with inline styles using CSS variables */
-                "text-[#e0e7ff] border border-[#00d9ff]/20 backdrop-blur-md"
+              ? "text-[#e0e7ff] border border-[#00d9ff]/20 backdrop-blur-md"
               : "bg-[#00d9ff] text-[#0a0e27] font-semibold"
           }
         `}
@@ -40,24 +38,21 @@ export default function ChatMessage({ message }: { message: Message }) {
               }
             : undefined
         }
-        layout
       >
-        <motion.div className="flex flex-wrap gap-1">
-          {words.map((word, i) => (
-            <motion.span key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}>
-              {word}
-            </motion.span>
-          ))}
+        {/* Removed word-by-word animation - too expensive for performance */}
+        <div className="flex flex-wrap gap-1">
+          {message.content}
           {message.isStreaming && (
             <motion.span
               animate={{ opacity: [1, 0.5, 1] }}
-              transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
+              transition={{ duration: 1, repeat: Infinity }}
+              className="ml-1"
             >
               ▌
             </motion.span>
           )}
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </motion.div>
   )
 }
