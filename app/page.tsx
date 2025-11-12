@@ -39,8 +39,8 @@ export default function Home() {
         {!showBoot && (
           <>
             <Sidebar onNavigate={handleSidebarNavigate} />
-            {/* Main content with padding for sidebar */}
-            <div className="ml-20">
+            {/* Main content with padding for sidebar (only on desktop) */}
+            <div className="lg:ml-20">
               <ChatInterface ref={chatInterfaceRef} />
             </div>
           </>

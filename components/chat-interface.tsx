@@ -192,8 +192,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle>((_, ref) => {
     <div className="flex flex-col h-screen bg-background">
       <TopBar />
 
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-6">
-        <div className="max-w-3xl mx-auto w-full space-y-6">
+      <div className="flex-1 overflow-y-auto px-3 md:px-8 py-4 md:py-6 space-y-4 md:space-y-6">
+        <div className="max-w-4xl mx-auto w-full space-y-4 md:space-y-6">
           {messages.map((msg, index) => (
             <div key={msg.id} className="space-y-2">
               <ChatMessage message={msg} />
@@ -249,9 +249,9 @@ const ChatInterface = forwardRef<ChatInterfaceHandle>((_, ref) => {
         </div>
       </div>
 
-      <div className="border-t border-[#1e293b] bg-background/95 backdrop-blur px-4 md:px-8 py-6">
-        <div className="max-w-3xl mx-auto w-full">
-          <form onSubmit={handleFormSubmit} className="flex gap-3">
+      <div className="border-t border-[#1e293b] bg-background/95 backdrop-blur px-3 md:px-8 py-4 md:py-6">
+        <div className="max-w-4xl mx-auto w-full">
+          <form onSubmit={handleFormSubmit} className="flex gap-2 md:gap-3">
             <div className="flex-1 relative">
               <input
                 type="text"
