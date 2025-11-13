@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Menu, X, Github, Linkedin, Code2, BookOpen, Layers, Clock, Zap } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -10,6 +10,19 @@ interface MobileMenuProps {
 
 export default function MobileMenu({ onNavigate }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
+
+  // Lock body scroll when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "auto"
+    }
+
+    return () => {
+      document.body.style.overflow = "auto"
+    }
+  }, [isOpen])
 
   const navLinks = [
     { icon: Code2, label: "Projects", command: "/projects" },
@@ -54,7 +67,7 @@ export default function MobileMenu({ onNavigate }: MobileMenuProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-md z-40 lg:hidden"
+              className="fixed inset-0 bg-black/80 backdrop-blur-md z-30 lg:hidden"
             />
 
             {/* Menu Panel */}
