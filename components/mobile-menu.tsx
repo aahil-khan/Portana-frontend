@@ -54,7 +54,7 @@ export default function MobileMenu({ onNavigate }: MobileMenuProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden"
+              className="fixed inset-0 bg-black/80 backdrop-blur-md z-40 lg:hidden"
             />
 
             {/* Menu Panel */}
@@ -63,9 +63,9 @@ export default function MobileMenu({ onNavigate }: MobileMenuProps) {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "-100%", opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed left-0 top-14 bottom-0 w-64 z-40 bg-gradient-to-b from-[#0f1419] to-[#1a1f3a] border-r border-[#1e293b] backdrop-blur-md lg:hidden"
+              className="fixed left-0 top-0 bottom-0 w-64 z-50 bg-gradient-to-b from-[#0f1419] to-[#1a1f3a] border-r border-[#1e293b] backdrop-blur-md lg:hidden overflow-y-auto"
             >
-              <div className="flex flex-col h-full p-4 space-y-6">
+              <div className="flex flex-col h-full p-4 space-y-6 pt-20">
                 {/* Navigation Links */}
                 <nav className="space-y-2">
                   <h2 className="text-xs font-display font-bold text-[#00d9ff]/60 px-3 py-2">NAVIGATION</h2>

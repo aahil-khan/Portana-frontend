@@ -9,6 +9,7 @@ import BackgroundEffects from "@/components/background-effects"
 export default function Home() {
   const [showBoot, setShowBoot] = useState(true)
   const [bootComplete, setBootComplete] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
   const chatInterfaceRef = useRef<{ sendMessage: (message: string) => void } | null>(null)
 
   useEffect(() => {
@@ -26,6 +27,17 @@ export default function Home() {
     }
   }, [])
 
+  useEffect(() => {
+    // Check if desktop on mount and on resize
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024) // lg breakpoint
+    }
+
+    checkDesktop()
+    window.addEventListener("resize", checkDesktop)
+    return () => window.removeEventListener("resize", checkDesktop)
+  }, [])
+
   const handleSidebarNavigate = (command: string) => {
     chatInterfaceRef.current?.sendMessage(command)
   }
@@ -38,7 +50,8 @@ export default function Home() {
         {showBoot && <BootScreen complete={bootComplete} />}
         {!showBoot && (
           <>
-            <Sidebar onNavigate={handleSidebarNavigate} />
+            {/* Only render sidebar on desktop */}
+            {isDesktop && <Sidebar onNavigate={handleSidebarNavigate} />}
             {/* Main content with padding for sidebar (only on desktop) */}
             <div className="lg:ml-20">
               <ChatInterface ref={chatInterfaceRef} />
