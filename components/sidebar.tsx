@@ -33,7 +33,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
       initial={{ x: -300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="hidden lg:flex fixed left-0 top-0 z-40 h-dvh w-20 flex-col items-center"
+      className="hidden lg:flex fixed left-0 top-0 z-60 h-dvh w-20 flex-col items-center"
       style={{
         background: "linear-gradient(180deg, rgba(255, 200, 150, 0.15) 0%, rgba(80, 120, 180, 0.15) 100%)",
         backdropFilter: "blur(16px)",
@@ -83,7 +83,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    className="absolute left-16 px-2 py-1 rounded text-xs font-medium whitespace-nowrap z-50"
+                    className="absolute left-16 px-2 py-1 rounded text-xs font-medium whitespace-nowrap z-100"
                     style={{
                       background: "rgba(0, 217, 255, 0.15)",
                       border: "1px solid rgba(0, 217, 255, 0.3)",
