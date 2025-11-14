@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import LinkRenderer from "./link-renderer"
 
 interface Message {
   id: string
@@ -39,9 +40,13 @@ export default function ChatMessage({ message }: { message: Message }) {
             : undefined
         }
       >
-        {/* Removed word-by-word animation - too expensive for performance */}
+        {/* Render content with link detection for assistant messages */}
         <div className="flex flex-wrap gap-1">
-          {message.content}
+          {isAssistant ? (
+            <LinkRenderer content={message.content} />
+          ) : (
+            message.content
+          )}
           {message.isStreaming && (
             <motion.span
               animate={{ opacity: [1, 0.5, 1] }}

@@ -2,10 +2,12 @@
 
 import { motion } from "framer-motion"
 import { useMemo } from "react"
+import { ExternalLink, Github } from "lucide-react"
 import ProjectsView from "./projects-view"
 import StackView from "./stack-view"
 import ExperienceView from "./experience-view"
 import TimelineView from "./timeline-view"
+import LinkRenderer from "./link-renderer"
 
 interface CommandDataRendererProps {
   command: string
@@ -53,7 +55,7 @@ export default function CommandDataRenderer({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="group p-3 md:p-6 rounded-lg cursor-pointer border border-[#1e293b] transition-all backdrop-blur-md hover:border-[#00d9ff]/50"
+                className="group p-3 md:p-6 rounded-lg border border-[#1e293b] transition-all backdrop-blur-md hover:border-[#00d9ff]/50"
                 style={{
                   background: "var(--glass-bg)",
                   backdropFilter: "blur(10px)",
@@ -66,7 +68,7 @@ export default function CommandDataRenderer({
                   <p className="text-xs text-[#00d9ff] mb-2">{project.subtitle}</p>
                 )}
                 <p className="text-xs md:text-sm text-[#94a3b8] mb-3 md:mb-4 line-clamp-2">{project.description}</p>
-                <div className="flex flex-wrap gap-1.5 md:gap-2">
+                <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3">
                   {project.tags?.map((tag: string, i: number) => (
                     <span
                       key={i}
@@ -75,6 +77,28 @@ export default function CommandDataRenderer({
                       {tag}
                     </span>
                   ))}
+                </div>
+                <div className="flex gap-3">
+                  {project.link && project.link !== "#" && (
+                    <motion.button
+                      whileHover={{ scale: 1.2 }}
+                      onClick={() => window.open(project.link, "_blank")}
+                      className="cursor-pointer hover:text-[#00d9ff] transition-colors"
+                      type="button"
+                    >
+                      <ExternalLink size={16} className="text-[#94a3b8]" />
+                    </motion.button>
+                  )}
+                  {project.github && project.github !== "#" && (
+                    <motion.button
+                      whileHover={{ scale: 1.2 }}
+                      onClick={() => window.open(project.github, "_blank")}
+                      className="cursor-pointer hover:text-[#00d9ff] transition-colors"
+                      type="button"
+                    >
+                      <Github size={16} className="text-[#94a3b8]" />
+                    </motion.button>
+                  )}
                 </div>
               </motion.div>
             ))}
