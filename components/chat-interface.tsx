@@ -32,6 +32,19 @@ interface ChatInterfaceProps {
 }
 
 const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onMenuToggle }, ref) => {
+  // Generate or retrieve unique session ID
+  const [sessionId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      let id = localStorage.getItem('portana_session_id')
+      if (!id) {
+        id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        localStorage.setItem('portana_session_id', id)
+      }
+      return id
+    }
+    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  })
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -43,15 +56,122 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [showCommands, setShowCommands] = useState(false)
+  const [selectedCommandIndex, setSelectedCommandIndex] = useState(0)
+  const [showScrollButton, setShowScrollButton] = useState(false)
+  const [isUserScrolling, setIsUserScrolling] = useState(false)
+  const [topBarOffset, setTopBarOffset] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const lastUserMessageRef = useRef<HTMLDivElement>(null)
+  const topBarRef = useRef<HTMLDivElement>(null)
+
+  const availableCommands = [
+    { command: "/projects", description: "View portfolio projects" },
+    { command: "/blog", description: "Latest blog posts" },
+    { command: "/stack", description: "Tech stack and specialties" },
+    { command: "/experience", description: "Professional experience" },
+    { command: "/timeline", description: "Professional timeline" },
+    { command: "/misc", description: "Miscellaneous tools" },
+    { command: "/help", description: "Show available commands" },
+  ]
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    setShowScrollButton(false)
   }
 
+  const scrollUserMessageToTop = () => {
+    requestAnimationFrame(() => {
+      if (!lastUserMessageRef.current) return
+      lastUserMessageRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
+    })
+  }
+
+  const checkScrollPosition = () => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const { scrollTop, scrollHeight, clientHeight } = container
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+    
+    // Show button if user scrolled up more than 100px from bottom
+    setShowScrollButton(distanceFromBottom > 100)
+  }
+
+  // Don't auto-scroll on new messages - let user control their position
   useEffect(() => {
-    scrollToBottom()
+    // Just check scroll position when messages change
+    checkScrollPosition()
+    
+    // If last message is from user, scroll it to top
+    if (messages.length > 0 && messages[messages.length - 1].sender === "user") {
+      scrollUserMessageToTop()
+    }
   }, [messages])
+
+  useEffect(() => {
+    // Show commands when input starts with /
+    if (input.startsWith("/") && input.length > 0) {
+      setShowCommands(true)
+      setSelectedCommandIndex(0)
+    } else {
+      setShowCommands(false)
+    }
+  }, [input])
+
+  useEffect(() => {
+    // Global keyboard shortcut: Ctrl+/ to focus input
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === "/") {
+        e.preventDefault()
+        inputRef.current?.focus()
+      }
+    }
+
+    window.addEventListener("keydown", handleGlobalKeyDown)
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown)
+  }, [])
+
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    container.addEventListener("scroll", checkScrollPosition)
+    return () => container.removeEventListener("scroll", checkScrollPosition)
+  }, [])
+
+  useEffect(() => {
+    const topBarEl = topBarRef.current
+    if (!topBarEl) return
+
+    const updateOffset = () => {
+      const rect = topBarEl.getBoundingClientRect()
+      setTopBarOffset(rect.height + 16) // add a small breathing room below the bar
+    }
+
+    updateOffset()
+
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(updateOffset)
+      observer.observe(topBarEl)
+      return () => observer.disconnect()
+    } else {
+      window.addEventListener("resize", updateOffset)
+      return () => window.removeEventListener("resize", updateOffset)
+    }
+  }, [])
+
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container || !topBarOffset) return
+
+    container.style.scrollPaddingTop = `${topBarOffset}px`
+    return () => {
+      container.style.scrollPaddingTop = ""
+    }
+  }, [topBarOffset])
 
   useImperativeHandle(ref, () => ({
     sendMessage: (message: string) => {
@@ -140,7 +260,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              sessionId: "visitor-session",
+              sessionId: sessionId,
               message: textToSend,
             }),
           }
@@ -192,19 +312,64 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     handleSendMessage()
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showCommands) return
+
+    const filteredCommands = availableCommands.filter(cmd =>
+      cmd.command.toLowerCase().startsWith(input.toLowerCase())
+    )
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault()
+      setSelectedCommandIndex(prev =>
+        prev < filteredCommands.length - 1 ? prev + 1 : prev
+      )
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault()
+      setSelectedCommandIndex(prev => (prev > 0 ? prev - 1 : 0))
+    } else if (e.key === "Tab" || e.key === "Enter") {
+      if (filteredCommands.length > 0) {
+        e.preventDefault()
+        setInput(filteredCommands[selectedCommandIndex].command)
+        setShowCommands(false)
+        if (e.key === "Enter") {
+          handleSendMessage(filteredCommands[selectedCommandIndex].command)
+        }
+      }
+    } else if (e.key === "Escape") {
+      setShowCommands(false)
+    }
+  }
+
+  const handleCommandClick = (command: string) => {
+    setInput(command)
+    setShowCommands(false)
+    inputRef.current?.focus()
+  }
+
   return (
     <div className="flex flex-col min-h-dvh bg-background" style={{ minHeight: "100dvh" }}>
-      <div className="sticky z-50" style={{ top: "env(safe-area-inset-top, 0px)" }}>
+      <div
+        ref={topBarRef}
+        className="sticky z-50"
+        style={{ top: "env(safe-area-inset-top, 0px)" }}
+      >
         <TopBar onNavigate={handleSendMessage} onMenuToggle={onMenuToggle} />
       </div>
 
       <div
+        ref={scrollContainerRef}
         className="flex-1 overflow-y-auto px-3 md:px-8 py-4 md:py-6 space-y-4 md:space-y-6 overscroll-contain"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 6rem)" }}
+        style={{ paddingBottom: "calc(100vh - 12rem)" }}
       >
         <div className="max-w-4xl mx-auto w-full space-y-4 md:space-y-6">
           {messages.map((msg, index) => (
-            <div key={msg.id} className="space-y-2">
+            <div 
+              key={msg.id} 
+              className="space-y-2"
+              ref={msg.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
+              style={msg.sender === "user" ? { scrollMarginTop: `${topBarOffset}px` } : undefined}
+            >
               <ChatMessage message={msg} />
 
               {/* Handle different response types */}
@@ -258,6 +423,28 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
         </div>
       </div>
 
+      {/* Scroll to Bottom Button */}
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="fixed bottom-24 right-4 md:right-8 bg-[#00d9ff] hover:bg-[#00b8cc] text-[#0a0e27] rounded-full p-3 shadow-lg transition-all duration-200 z-30 animate-in fade-in slide-in-from-bottom-2"
+          aria-label="Scroll to bottom"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 5v14M19 12l-7 7-7-7" />
+          </svg>
+        </button>
+      )}
+
       <div
         className="border-t border-[#1e293b] bg-background/95 backdrop-blur px-3 md:px-8 py-4 md:py-6 sticky z-40"
         style={{
@@ -269,13 +456,42 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
           <form onSubmit={handleFormSubmit} className="flex gap-2 md:gap-3">
             <div className="flex-1 relative">
               <input
+                ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="> Ask me anything or use /help"
                 className="w-full bg-[#1a1f3a] text-foreground placeholder-[#94a3b8] border border-[#1e293b] rounded-lg px-4 py-3 font-mono text-sm focus:outline-none focus:border-[#00d9ff] focus:ring-2 focus:ring-[#00d9ff]/20 transition-all"
                 disabled={isLoading}
               />
+              
+              {/* Command Suggestions Dropdown */}
+              {showCommands && (
+                <div className="absolute bottom-full left-0 right-0 mb-2 bg-[#1a1f3a] border border-[#00d9ff]/30 rounded-lg shadow-lg overflow-hidden z-50 max-h-64 overflow-y-auto">
+                  {availableCommands
+                    .filter(cmd => cmd.command.toLowerCase().startsWith(input.toLowerCase()))
+                    .map((cmd, index) => (
+                      <button
+                        key={cmd.command}
+                        type="button"
+                        onClick={() => handleCommandClick(cmd.command)}
+                        className={`w-full text-left px-4 py-3 transition-colors ${
+                          index === selectedCommandIndex
+                            ? "bg-[#00d9ff]/10 border-l-2 border-[#00d9ff]"
+                            : "hover:bg-[#1e293b]"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-[#00d9ff] font-mono font-semibold text-sm">
+                            {cmd.command}
+                          </span>
+                          <span className="text-[#94a3b8] text-xs">{cmd.description}</span>
+                        </div>
+                      </button>
+                    ))}
+                </div>
+              )}
             </div>
             <button
               type="submit"
