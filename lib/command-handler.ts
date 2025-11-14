@@ -63,10 +63,14 @@ export class CommandHandler {
             response: "Miscellaneous tools and experiments:",
             component: MiscView,
           }
+        case "start":
+          return {
+            response: "Welcome! Let me introduce myself:",
+          }
         case "help":
           return {
             response:
-              "Available commands: /projects, /blog, /stack, /experience, /timeline, /misc, /theme. Or just ask me anything!",
+              "Available commands: /start, /projects, /blog, /stack, /experience, /timeline, /misc, /theme. Or just ask me anything!",
           }
         case "theme":
           return {
