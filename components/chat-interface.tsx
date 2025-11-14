@@ -190,7 +190,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle>((_, ref) => {
 
   return (
     <div className="flex flex-col min-h-dvh bg-background" style={{ minHeight: "100dvh" }}>
-      <div className="sticky z-50" style={{ top: "env(safe-area-inset-top, 0px)" }}>
+      <div className="sticky" style={{ top: "env(safe-area-inset-top, 0px)" }}>
         <TopBar onNavigate={handleSendMessage} />
       </div>
 
