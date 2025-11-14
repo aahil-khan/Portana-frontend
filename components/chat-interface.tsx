@@ -189,12 +189,15 @@ const ChatInterface = forwardRef<ChatInterfaceHandle>((_, ref) => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
-      <div className="sticky top-0 z-50">
+    <div className="flex flex-col min-h-dvh bg-background" style={{ minHeight: "100dvh" }}>
+      <div className="sticky z-50" style={{ top: "env(safe-area-inset-top, 0px)" }}>
         <TopBar onNavigate={handleSendMessage} />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 md:px-8 py-4 md:py-6 space-y-4 md:space-y-6 pb-24">
+      <div
+        className="flex-1 overflow-y-auto px-3 md:px-8 py-4 md:py-6 space-y-4 md:space-y-6 overscroll-contain"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 6rem)" }}
+      >
         <div className="max-w-4xl mx-auto w-full space-y-4 md:space-y-6">
           {messages.map((msg, index) => (
             <div key={msg.id} className="space-y-2">
@@ -251,7 +254,13 @@ const ChatInterface = forwardRef<ChatInterfaceHandle>((_, ref) => {
         </div>
       </div>
 
-      <div className="border-t border-[#1e293b] bg-background/95 backdrop-blur px-3 md:px-8 py-4 md:py-6 sticky bottom-0 z-40">
+      <div
+        className="border-t border-[#1e293b] bg-background/95 backdrop-blur px-3 md:px-8 py-4 md:py-6 sticky z-40"
+        style={{
+          bottom: "env(safe-area-inset-bottom, 0px)",
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)",
+        }}
+      >
         <div className="max-w-4xl mx-auto w-full">
           <form onSubmit={handleFormSubmit} className="flex gap-2 md:gap-3">
             <div className="flex-1 relative">

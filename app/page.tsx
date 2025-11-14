@@ -37,13 +37,12 @@ export default function Home() {
       <main className="min-h-screen bg-background relative">
         {showBoot && <BootScreen complete={bootComplete} />}
         {!showBoot && (
-          <>
+          <div className="lg:flex">
             <Sidebar onNavigate={handleSidebarNavigate} />
-            {/* Main content with padding for sidebar (only on desktop) */}
-            <div className="lg:ml-20">
+            <div className="flex-1 w-full">
               <ChatInterface ref={chatInterfaceRef} />
             </div>
-          </>
+          </div>
         )}
       </main>
     </>
