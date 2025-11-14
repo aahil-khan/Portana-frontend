@@ -33,7 +33,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
       initial={{ x: -300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="hidden lg:flex sticky top-0 z-40 h-dvh w-20 flex-col items-center shrink-0"
+      className="hidden lg:flex fixed left-0 top-0 z-40 h-dvh w-20 flex-col items-center"
       style={{
         background: "linear-gradient(180deg, rgba(255, 200, 150, 0.15) 0%, rgba(80, 120, 180, 0.15) 100%)",
         backdropFilter: "blur(16px)",
