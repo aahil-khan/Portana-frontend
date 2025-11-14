@@ -83,7 +83,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    className="absolute left-16 px-2 py-1 rounded text-xs font-medium whitespace-nowrap"
+                    className="absolute left-16 px-2 py-1 rounded text-xs font-medium whitespace-nowrap z-50"
                     style={{
                       background: "rgba(0, 217, 255, 0.15)",
                       border: "1px solid rgba(0, 217, 255, 0.3)",
@@ -142,7 +142,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
-                      className="absolute left-16 px-2 py-1 rounded text-xs font-medium whitespace-nowrap"
+                      className="absolute left-16 px-2 py-1 rounded text-xs font-medium whitespace-nowrap z-50"
                       style={{
                         background: "rgba(157, 123, 255, 0.15)",
                         border: "1px solid rgba(157, 123, 255, 0.3)",
