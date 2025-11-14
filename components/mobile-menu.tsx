@@ -1,15 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Menu, X, Github, Linkedin, Code2, BookOpen, Layers, Clock, Zap } from "lucide-react"
+import { useEffect } from "react"
+import { X, Github, Linkedin, Code2, BookOpen, Layers, Clock, Zap } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface MobileMenuProps {
+  isOpen: boolean
+  onClose: () => void
   onNavigate?: (command: string) => void
 }
 
-export default function MobileMenu({ onNavigate }: MobileMenuProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export default function MobileMenu({ isOpen, onClose, onNavigate }: MobileMenuProps) {
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -39,24 +40,11 @@ export default function MobileMenu({ onNavigate }: MobileMenuProps) {
 
   const handleNavClick = (command: string) => {
     onNavigate?.(command)
-    setIsOpen(false)
+    onClose()
   }
 
   return (
     <>
-      {/* Menu Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden p-1.5 hover:bg-[#1a1f3a] rounded-lg transition-colors"
-        aria-label="Toggle menu"
-      >
-        {isOpen ? (
-          <X size={20} className="text-[#00d9ff]" />
-        ) : (
-          <Menu size={20} className="text-[#94a3b8]" />
-        )}
-      </button>
-
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isOpen && (
@@ -66,7 +54,7 @@ export default function MobileMenu({ onNavigate }: MobileMenuProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
               className="fixed inset-0 bg-black/80 backdrop-blur-md z-998 lg:hidden"
             />
 
@@ -101,7 +89,7 @@ export default function MobileMenu({ onNavigate }: MobileMenuProps) {
                 </nav>
 
                 {/* Divider */}
-                <div className="h-px bg-gradient-to-r from-[#1e293b] via-[#00d9ff]/20 to-[#1e293b]" />
+                <div className="h-px bg-linear-to-r from-[#1e293b] via-[#00d9ff]/20 to-[#1e293b]" />
 
                 {/* External Links */}
                 <div className="space-y-2">

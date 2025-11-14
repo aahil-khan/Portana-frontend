@@ -5,10 +5,12 @@ import BootScreen from "@/components/boot-screen"
 import ChatInterface from "@/components/chat-interface"
 import Sidebar from "@/components/sidebar"
 import BackgroundEffects from "@/components/background-effects"
+import MobileMenu from "@/components/mobile-menu"
 
 export default function Home() {
   const [showBoot, setShowBoot] = useState(true)
   const [bootComplete, setBootComplete] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const chatInterfaceRef = useRef<{ sendMessage: (message: string) => void } | null>(null)
 
   useEffect(() => {
@@ -28,6 +30,7 @@ export default function Home() {
 
   const handleSidebarNavigate = (command: string) => {
     chatInterfaceRef.current?.sendMessage(command)
+    setMobileMenuOpen(false)
   }
 
   return (
@@ -40,8 +43,13 @@ export default function Home() {
           <>
             <Sidebar onNavigate={handleSidebarNavigate} />
             <div className="lg:ml-20">
-              <ChatInterface ref={chatInterfaceRef} />
+              <ChatInterface ref={chatInterfaceRef} onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
             </div>
+            <MobileMenu 
+              isOpen={mobileMenuOpen} 
+              onClose={() => setMobileMenuOpen(false)}
+              onNavigate={handleSidebarNavigate}
+            />
           </>
         )}
       </main>

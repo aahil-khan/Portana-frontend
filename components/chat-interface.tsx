@@ -27,7 +27,11 @@ interface ChatInterfaceHandle {
   sendMessage: (message: string) => void
 }
 
-const ChatInterface = forwardRef<ChatInterfaceHandle>((_, ref) => {
+interface ChatInterfaceProps {
+  onMenuToggle?: () => void
+}
+
+const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onMenuToggle }, ref) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -190,8 +194,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle>((_, ref) => {
 
   return (
     <div className="flex flex-col min-h-dvh bg-background" style={{ minHeight: "100dvh" }}>
-      <div className="sticky" style={{ top: "env(safe-area-inset-top, 0px)" }}>
-        <TopBar onNavigate={handleSendMessage} />
+      <div className="sticky z-50" style={{ top: "env(safe-area-inset-top, 0px)" }}>
+        <TopBar onNavigate={handleSendMessage} onMenuToggle={onMenuToggle} />
       </div>
 
       <div
