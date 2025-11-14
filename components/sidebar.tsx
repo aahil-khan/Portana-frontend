@@ -100,7 +100,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
       </nav>
 
       {/* External Links */}
-      <div className="flex flex-col items-center gap-4 py-8 border-t border-white/10 w-full">
+      <div className="flex flex-col items-center gap-4 py-8 border-t border-white/10 w-full relative z-50">
         {externalLinks.map((link, idx) => {
           const Icon = link.icon
           return (
