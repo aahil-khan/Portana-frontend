@@ -34,7 +34,7 @@ export default function Home() {
     <>
       <BackgroundEffects />
 
-      <main className="min-h-screen bg-background relative">
+      <main className="min-h-screen bg-background">
         {showBoot && <BootScreen complete={bootComplete} />}
         {!showBoot && (
           <>
