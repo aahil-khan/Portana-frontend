@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { useMemo } from "react"
-import { ExternalLink, Github } from "lucide-react"
+import { ExternalLink, Github, Calendar } from "lucide-react"
 import ProjectsView from "./projects-view"
 import StackView from "./stack-view"
 import ExperienceView from "./experience-view"
@@ -208,7 +208,68 @@ export default function CommandDataRenderer({
         </motion.div>
       )}
 
-      {!["projects", "stack", "experience", "timeline"].includes(command) && (
+      {command === "blog" && Array.isArray(data) && data.length > 0 && (
+        <motion.div className="space-y-3 md:space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          {data.map((article: any, idx: number) => (
+            <motion.a
+              key={article.id}
+              href={article.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              whileHover={{ scale: 1.02 }}
+              className="block p-3 md:p-4 rounded-lg border border-[#1e293b] transition-all backdrop-blur-md hover:border-[#00d9ff]/50 group"
+              style={{
+                background: "var(--glass-bg)",
+                backdropFilter: "blur(10px)",
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget
+                el.style.background = "var(--glass-bg-hover)"
+                el.style.borderColor = "var(--glass-border-hover)"
+                el.style.boxShadow = "0 0 20px var(--glass-glow-hover)"
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget
+                el.style.background = "var(--glass-bg)"
+                el.style.borderColor = "var(--glass-border)"
+                el.style.boxShadow = "none"
+              }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm md:text-base font-semibold text-[#e0e7ff] group-hover:text-[#00d9ff] transition-colors line-clamp-2">
+                    {article.title}
+                  </h3>
+                  <p className="text-xs md:text-sm text-[#94a3b8] mt-1 line-clamp-2">{article.description}</p>
+
+                  <div className="flex flex-wrap gap-1.5 md:gap-2 mt-2 mb-2">
+                    {article.tags?.map((tag: string, i: number) => (
+                      <span key={i} className="text-xs bg-[#1a1f3a] text-[#00d9ff] px-1.5 py-0.5 rounded border border-[#00d9ff]/20">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs text-[#94a3b8]">
+                    <Calendar size={12} />
+                    <span>{new Date(article.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
+                    {article.readTime && <span>• {article.readTime} min read</span>}
+                  </div>
+                </div>
+
+                <motion.div whileHover={{ scale: 1.2 }} className="shrink-0 mt-1">
+                  <ExternalLink size={16} className="text-[#94a3b8] group-hover:text-[#00d9ff] transition-colors" />
+                </motion.div>
+              </div>
+            </motion.a>
+          ))}
+        </motion.div>
+      )}
+
+      {!["projects", "stack", "experience", "timeline", "blog"].includes(command) && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
