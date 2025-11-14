@@ -59,7 +59,7 @@ export default function LinkRenderer({ content }: LinkRendererProps) {
   const parts = parseLinkContent(content)
 
   return (
-    <span className="break-words">
+    <span className="break-words whitespace-pre-wrap">
       {parts.map((part, idx) =>
         typeof part === "string" ? (
           <span key={idx}>{part}</span>

@@ -49,11 +49,12 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     {
       id: "1",
       content:
-        "Hey! I'm Portana, Aahil's AI portfolio assistant. Ask me about projects, experience, tech stack, or use commands like /projects, /experience, /stack, and more!",
+        "Hey! I'm Portana, Aahil's AI portfolio assistant. Type /start to get a complete introduction, or ask me about projects, experience, tech stack. Use commands like /projects, /experience, /stack, /blog, and more!",
       sender: "assistant",
       timestamp: new Date(),
     },
   ])
+  const [hasUsedStart, setHasUsedStart] = useState(false)
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showCommands, setShowCommands] = useState(false)
@@ -68,6 +69,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
   const topBarRef = useRef<HTMLDivElement>(null)
 
   const availableCommands = [
+    { command: "/start", description: "Welcome introduction & usage guide" },
     { command: "/projects", description: "View portfolio projects" },
     { command: "/blog", description: "Latest blog posts" },
     { command: "/stack", description: "Tech stack and specialties" },
@@ -181,6 +183,18 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
 
   const handleCommandSuggestion = async (command: string) => {
     try {
+      // Check if /start has been used already
+      if (command === "start" && hasUsedStart) {
+        const warningMessage: Message = {
+          id: Date.now().toString(),
+          content: "You've already used /start for this session! You can explore the other commands or ask me anything.",
+          sender: "assistant",
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, warningMessage])
+        return
+      }
+
       const response = await fetch(
         `https://portana-api.aahil-khan.tech/api/commands/${command}`
       )
@@ -197,6 +211,11 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
       }
 
       setMessages((prev) => [...prev, commandMessage])
+      
+      // Mark /start as used
+      if (command === "start") {
+        setHasUsedStart(true)
+      }
     } catch (error) {
       console.error("Error fetching command:", error)
     }
@@ -225,6 +244,19 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
       if (isCommand && commandMatch) {
         const command = commandMatch[1]
         
+        // Check if /start has been used already
+        if (command === "start" && hasUsedStart) {
+          const warningMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: "You've already used /start for this session! You can explore the other commands or ask me anything.",
+            sender: "assistant",
+            timestamp: new Date(),
+          }
+          setMessages((prev) => [...prev, warningMessage])
+          setIsLoading(false)
+          return
+        }
+        
         // Fetch from command endpoint
         const response = await fetch(
           `https://portana-api.aahil-khan.tech/api/commands/${command}`
@@ -240,6 +272,11 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
             response: data,
           }
           setMessages((prev) => [...prev, assistantMessage])
+          
+          // Mark /start as used
+          if (command === "start") {
+            setHasUsedStart(true)
+          }
         } else {
           // Fallback to mock handler for unknown commands
           const result = CommandHandler.handleCommand(textToSend)
