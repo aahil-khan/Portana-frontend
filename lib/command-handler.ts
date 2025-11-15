@@ -4,6 +4,7 @@ import StackView from "@/components/stack-view"
 import ExperienceView from "@/components/experience-view"
 import TimelineView from "@/components/timeline-view"
 import MiscView from "@/components/misc-view"
+import { API_URL } from "./config"
 
 export class CommandHandler {
   static getCommandComponent(command: string) {
@@ -60,8 +61,7 @@ export class CommandHandler {
           }
         case "misc":
           return {
-            response: "Miscellaneous tools and experiments:",
-            component: MiscView,
+            response: "My VS Code setup and extensions:",
           }
         case "start":
           return {

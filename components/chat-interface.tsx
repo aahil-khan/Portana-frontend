@@ -67,6 +67,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const lastUserMessageRef = useRef<HTMLDivElement>(null)
   const topBarRef = useRef<HTMLDivElement>(null)
+  const commandMenuRef = useRef<HTMLDivElement>(null)
+  const commandItemsRef = useRef<(HTMLButtonElement | null)[]>([])
 
   const availableCommands = [
     { command: "/start", description: "Welcome introduction & usage guide" },
@@ -360,12 +362,24 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
 
     if (e.key === "ArrowDown") {
       e.preventDefault()
-      setSelectedCommandIndex(prev =>
-        prev < filteredCommands.length - 1 ? prev + 1 : prev
-      )
+      setSelectedCommandIndex(prev => {
+        const newIndex = prev < filteredCommands.length - 1 ? prev + 1 : prev
+        // Scroll selected item into view after state update
+        setTimeout(() => {
+          commandItemsRef.current[newIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+        }, 0)
+        return newIndex
+      })
     } else if (e.key === "ArrowUp") {
       e.preventDefault()
-      setSelectedCommandIndex(prev => (prev > 0 ? prev - 1 : 0))
+      setSelectedCommandIndex(prev => {
+        const newIndex = prev > 0 ? prev - 1 : 0
+        // Scroll selected item into view after state update
+        setTimeout(() => {
+          commandItemsRef.current[newIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+        }, 0)
+        return newIndex
+      })
     } else if (e.key === "Tab" || e.key === "Enter") {
       if (filteredCommands.length > 0) {
         e.preventDefault()
@@ -507,12 +521,13 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
               
               {/* Command Suggestions Dropdown */}
               {showCommands && (
-                <div className="absolute bottom-full left-0 right-0 mb-2 bg-[#1a1f3a] border border-[#00d9ff]/30 rounded-lg shadow-lg overflow-hidden z-50 max-h-64 overflow-y-auto">
+                <div ref={commandMenuRef} className="absolute bottom-full left-0 right-0 mb-2 bg-[#1a1f3a] border border-[#00d9ff]/30 rounded-lg shadow-lg overflow-hidden z-50 max-h-64 overflow-y-auto">
                   {availableCommands
                     .filter(cmd => cmd.command.toLowerCase().startsWith(input.toLowerCase()))
                     .map((cmd, index) => (
                       <button
                         key={cmd.command}
+                        ref={(el) => { commandItemsRef.current[index] = el }}
                         type="button"
                         onClick={() => handleCommandClick(cmd.command)}
                         className={`w-full text-left px-4 py-3 transition-colors ${

@@ -10,6 +10,7 @@ import TimelineView from "./timeline-view"
 import LinkRenderer from "./link-renderer"
 import ContactForm from "./contact-form"
 import ResumeDownload from "./resume-download"
+import ExtensionsSetup from "./extensions-setup"
 
 interface CommandDataRendererProps {
   command: string
@@ -279,15 +280,16 @@ export default function CommandDataRenderer({
         <ContactForm />
       )}
 
-      {!["projects", "stack", "experience", "timeline", "blog", "resume", "contact"].includes(command) && (
+      {command === "misc" && (
+        <ExtensionsSetup />
+      )}
+
+      {!["projects", "stack", "experience", "timeline", "blog", "resume", "contact", "misc"].includes(command) && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="p-4 rounded-lg border border-[#1e293b] bg-[#1a1f3a]/50 text-[#94a3b8]"
         >
-          <p className="text-sm">
-            Data received for: <span className="text-[#00d9ff]">{command}</span>
-          </p>
         </motion.div>
       )}
     </motion.div>

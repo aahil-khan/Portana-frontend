@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Send, CheckCircle, AlertCircle, Loader } from "lucide-react"
+import { Send, CheckCircle, AlertCircle, Loader, Lock } from "lucide-react"
 import { API_URL } from "@/lib/config"
 
 interface ContactFormState {
@@ -21,6 +21,8 @@ interface ContactFormProps {
   formEndpoint?: string
 }
 
+const CONTACT_FORM_STORAGE_KEY = "portana_contact_form_submitted"
+
 export default function ContactForm({ formEndpoint }: ContactFormProps) {
   const [formData, setFormData] = useState<ContactFormState>({
     name: "",
@@ -29,6 +31,15 @@ export default function ContactForm({ formEndpoint }: ContactFormProps) {
     honeypot: "",
   })
   const [status, setStatus] = useState<FormStatus>({ type: "idle" })
+  const [hasSubmitted, setHasSubmitted] = useState(false)
+  
+  // Check if form has already been submitted in this session
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const submitted = localStorage.getItem(CONTACT_FORM_STORAGE_KEY) === "true"
+      setHasSubmitted(submitted)
+    }
+  }, [])
   
   const finalFormEndpoint = useMemo(() => {
     return formEndpoint || `${API_URL}/api/misc/contact`
@@ -46,6 +57,15 @@ export default function ContactForm({ formEndpoint }: ContactFormProps) {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    // Prevent submission if already submitted
+    if (hasSubmitted) {
+      setStatus({
+        type: "error",
+        message: "You have already sent a contact request in this session. Please try again later.",
+      })
+      return
+    }
 
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
       setStatus({
@@ -72,6 +92,10 @@ export default function ContactForm({ formEndpoint }: ContactFormProps) {
       console.log("Response data:", result)
 
       if (response.ok && result.success) {
+        // Mark form as submitted in localStorage
+        localStorage.setItem(CONTACT_FORM_STORAGE_KEY, "true")
+        setHasSubmitted(true)
+        
         setStatus({
           type: "success",
           message: result.message || "Thank you! Your message has been sent successfully.",
@@ -82,10 +106,6 @@ export default function ContactForm({ formEndpoint }: ContactFormProps) {
           message: "",
           honeypot: "",
         })
-        // Reset success message after 5 seconds
-        setTimeout(() => {
-          setStatus({ type: "idle" })
-        }, 5000)
       } else {
         setStatus({
           type: "error",
@@ -214,18 +234,23 @@ export default function ContactForm({ formEndpoint }: ContactFormProps) {
       {/* Submit button */}
       <motion.button
         type="submit"
-        disabled={status.type === "loading"}
+        disabled={status.type === "loading" || hasSubmitted}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="w-full px-4 py-3 md:py-4 bg-gradient-to-r from-[#00d9ff] to-[#a78bfa] text-[#0b0d10] font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-[#00d9ff]/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        whileHover={!hasSubmitted ? { scale: 1.02 } : {}}
+        whileTap={!hasSubmitted ? { scale: 0.98 } : {}}
+        className="w-full px-4 py-3 md:py-4 bg-linear-to-r from-[#00d9ff] to-[#a78bfa] text-[#0b0d10] font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-[#00d9ff]/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {status.type === "loading" ? (
           <>
             <Loader size={18} className="animate-spin" />
             Sending...
+          </>
+        ) : hasSubmitted ? (
+          <>
+            <Lock size={18} />
+            Message Already Sent
           </>
         ) : (
           <>
