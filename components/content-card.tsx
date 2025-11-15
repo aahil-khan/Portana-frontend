@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 
-export default function ContentCard({ component: Component }: { component: any }) {
+export default function ContentCard({ component: Component, onComplete }: { component: any; onComplete?: () => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -15,7 +15,7 @@ export default function ContentCard({ component: Component }: { component: any }
         borderColor: "var(--glass-border)",
       }}
     >
-      <Component />
+      <Component onComplete={onComplete} />
     </motion.div>
   )
 }

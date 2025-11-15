@@ -21,6 +21,7 @@ interface Message {
   isStreaming?: boolean
   component?: any
   response?: BackendResponse
+  onComplete?: () => void
 }
 
 interface ChatInterfaceHandle {
@@ -284,12 +285,23 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
         } else {
           // Fallback to mock handler for unknown commands
           const result = CommandHandler.handleCommand(textToSend)
+          const onCompleteHandler = result.command === "hack" ? () => {
+            const followUpMessage: Message = {
+              id: (Date.now() + 10).toString(),
+              content: "Let's discuss some work now, shall we?",
+              sender: "assistant",
+              timestamp: new Date(),
+            }
+            setMessages((prev) => [...prev, followUpMessage])
+          } : undefined
+          
           const assistantMessage: Message = {
             id: (Date.now() + 1).toString(),
             content: result.response,
             sender: "assistant",
             timestamp: new Date(),
             component: result.component,
+            onComplete: onCompleteHandler,
           }
           setMessages((prev) => [...prev, assistantMessage])
         }
@@ -461,7 +473,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
               )}
 
               {/* Fallback for legacy component rendering */}
-              {msg.component && <ContentCard component={msg.component} />}
+              {msg.component && <ContentCard component={msg.component} onComplete={msg.onComplete} />}
             </div>
           ))}
 

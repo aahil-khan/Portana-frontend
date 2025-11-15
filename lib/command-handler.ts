@@ -4,6 +4,7 @@ import StackView from "@/components/stack-view"
 import ExperienceView from "@/components/experience-view"
 import TimelineView from "@/components/timeline-view"
 import MiscView from "@/components/misc-view"
+import MatrixRain from "@/components/matrix-rain"
 import { API_URL } from "./config"
 
 export class CommandHandler {
@@ -21,12 +22,14 @@ export class CommandHandler {
         return TimelineView
       case "misc":
         return MiscView
+      case "hack":
+        return MatrixRain
       default:
         return null
     }
   }
 
-  static handleCommand(input: string): { response: string; component?: any } {
+  static handleCommand(input: string): { response: string; component?: any; command?: string } {
     const trimmed = input.trim().toLowerCase()
 
     if (trimmed.startsWith("/")) {
@@ -38,51 +41,66 @@ export class CommandHandler {
           return {
             response: "Here are my recent projects:",
             component: ProjectsView,
+            command: "projects",
           }
         case "blog":
           return {
             response: "Check out my latest blog posts:",
             component: BlogView,
+            command: "blog",
           }
         case "stack":
           return {
             response: "My tech stack and specialties:",
             component: StackView,
+            command: "stack",
           }
         case "experience":
           return {
             response: "My professional experience:",
             component: ExperienceView,
+            command: "experience",
           }
         case "timeline":
           return {
             response: "My professional timeline:",
             component: TimelineView,
+            command: "timeline",
           }
         case "misc":
           return {
             response: "My VS Code setup and extensions:",
+            command: "misc",
           }
         case "start":
           return {
             response: "Welcome! Let me introduce myself:",
+            command: "start",
           }
         case "resume":
           return {
             response: "Here's my resume! Download it to see my full professional background:",
+            command: "resume",
           }
         case "contact":
           return {
             response: "I'd love to hear from you! Fill out the form below:",
+            command: "contact",
+          }
+        case "hack":
+          return {
+            response: "🟢 Initiating hacking sequence...",
+            component: MatrixRain,
+            command: "hack",
           }
         case "help":
           return {
             response:
-              "Available commands: /start, /projects, /blog, /stack, /experience, /timeline, /resume, /contact, /misc, /theme. Or just ask me anything!",
+              "Available commands: /start, /projects, /blog, /stack, /experience, /timeline, /resume, /contact, /misc, /hack. Or just ask me anything!",
           }
-        case "theme":
+        case "admin":
           return {
-            response: "Theme toggling feature coming soon! Currently in dark mode.",
+            response: "Access denied lol. Did you really think that'd work? Try harder",
           }
         case "sudo":
           if (trimmed.includes("rm -rf")) {
