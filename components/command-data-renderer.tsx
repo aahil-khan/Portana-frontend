@@ -8,6 +8,8 @@ import StackView from "./stack-view"
 import ExperienceView from "./experience-view"
 import TimelineView from "./timeline-view"
 import LinkRenderer from "./link-renderer"
+import ContactForm from "./contact-form"
+import ResumeDownload from "./resume-download"
 
 interface CommandDataRendererProps {
   command: string
@@ -22,8 +24,8 @@ export default function CommandDataRenderer({
   command,
   data,
 }: CommandDataRendererProps) {
-  // Guard against undefined command or data
-  if (!command || !data) {
+  // Guard against undefined command (data can be null for some commands like contact and resume)
+  if (!command) {
     return null
   }
   // Store data in a context/state that components can access
@@ -269,7 +271,15 @@ export default function CommandDataRenderer({
         </motion.div>
       )}
 
-      {!["projects", "stack", "experience", "timeline", "blog"].includes(command) && (
+      {command === "resume" && (
+        <ResumeDownload />
+      )}
+
+      {command === "contact" && (
+        <ContactForm />
+      )}
+
+      {!["projects", "stack", "experience", "timeline", "blog", "resume", "contact"].includes(command) && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

@@ -67,10 +67,18 @@ export class CommandHandler {
           return {
             response: "Welcome! Let me introduce myself:",
           }
+        case "resume":
+          return {
+            response: "Here's my resume! Download it to see my full professional background:",
+          }
+        case "contact":
+          return {
+            response: "I'd love to hear from you! Fill out the form below:",
+          }
         case "help":
           return {
             response:
-              "Available commands: /start, /projects, /blog, /stack, /experience, /timeline, /misc, /theme. Or just ask me anything!",
+              "Available commands: /start, /projects, /blog, /stack, /experience, /timeline, /resume, /contact, /misc, /theme. Or just ask me anything!",
           }
         case "theme":
           return {
@@ -117,6 +125,12 @@ export class CommandHandler {
     if (trimmed.includes("experience") || trimmed.includes("work")) {
       return {
         response: "Type /experience to learn about my professional journey!",
+      }
+    }
+
+    if (trimmed.includes("contact") || trimmed.includes("reach") || trimmed.includes("message")) {
+      return {
+        response: "Type /contact to send me a message!",
       }
     }
 

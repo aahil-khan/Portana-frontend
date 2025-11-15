@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { X, Github, Linkedin, Code2, BookOpen, Layers, Clock, Zap } from "lucide-react"
+import { X, Github, Linkedin, Code2, BookOpen, Layers, Clock, Zap, FileText, Mail } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface MobileMenuProps {
@@ -30,6 +30,8 @@ export default function MobileMenu({ isOpen, onClose, onNavigate }: MobileMenuPr
     { icon: BookOpen, label: "Blog", command: "/blog" },
     { icon: Layers, label: "Stack", command: "/stack" },
     { icon: Clock, label: "Timeline", command: "/timeline" },
+    { icon: FileText, label: "Resume", command: "/resume" },
+    { icon: Mail, label: "Contact", command: "/contact" },
     { icon: Zap, label: "Misc", command: "/misc" },
   ]
 

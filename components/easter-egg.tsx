@@ -8,7 +8,7 @@ export default function EasterEgg() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === "D") {
+      if (e.ctrlKey && e.shiftKey && e.key === "E") {
         setGlitch(true)
         setTimeout(() => setGlitch(false), 1000)
       }
