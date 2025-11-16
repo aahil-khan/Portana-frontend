@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { trackEasterEgg } from "@/lib/analytics"
 
 export default function EasterEgg() {
   const [glitch, setGlitch] = useState(false)
@@ -9,6 +10,7 @@ export default function EasterEgg() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === "E") {
+        trackEasterEgg("glitch_effect")
         setGlitch(true)
         setTimeout(() => setGlitch(false), 1000)
       }

@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Send, CheckCircle, AlertCircle, Loader, Lock } from "lucide-react"
 import { API_URL } from "@/lib/config"
+import { trackContactSubmission } from "@/lib/analytics"
 
 interface ContactFormState {
   name: string
@@ -95,6 +96,7 @@ export default function ContactForm({ formEndpoint }: ContactFormProps) {
         // Mark form as submitted in localStorage
         localStorage.setItem(CONTACT_FORM_STORAGE_KEY, "true")
         setHasSubmitted(true)
+        trackContactSubmission("success")
         
         setStatus({
           type: "success",
@@ -107,12 +109,14 @@ export default function ContactForm({ formEndpoint }: ContactFormProps) {
           honeypot: "",
         })
       } else {
+        trackContactSubmission("error")
         setStatus({
           type: "error",
           message: result.error || "Failed to send message. Please try again.",
         })
       }
     } catch (error) {
+      trackContactSubmission("error")
       setStatus({
         type: "error",
         message: "An error occurred. Please try again later.",

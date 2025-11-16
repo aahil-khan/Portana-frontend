@@ -284,7 +284,7 @@ export default function CommandDataRenderer({
         <ExtensionsSetup />
       )}
 
-      {!["projects", "stack", "experience", "timeline", "blog", "resume", "contact", "misc"].includes(command) && (
+      {!["start", "projects", "stack", "experience", "timeline", "blog", "resume", "contact", "misc"].includes(command) && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

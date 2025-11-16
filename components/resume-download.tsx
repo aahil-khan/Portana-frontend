@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import { Download, FileText } from "lucide-react"
 import { useState, useMemo } from "react"
 import { API_URL } from "@/lib/config"
+import { trackResumeDownload } from "@/lib/analytics"
 
 interface ResumeDownloadProps {
   downloadUrl?: string
@@ -26,6 +27,7 @@ export default function ResumeDownload({
   const handleDownload = async () => {
     try {
       setIsDownloading(true)
+      trackResumeDownload()
 
       const response = await fetch(finalDownloadUrl)
       if (!response.ok) {

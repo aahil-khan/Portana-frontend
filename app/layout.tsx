@@ -32,6 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${spaceMono.variable} ${orbitron.variable}`}>
+      <head>
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="a19609f1-9816-41e9-87d5-f1ec6fb7a6d8"></script>
+      </head>
       <body className={`${spaceMono.className} antialiased overflow-hidden`}>
         {children}
         <EasterEgg />

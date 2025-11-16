@@ -12,6 +12,7 @@ import CommandSuggestion from "./command-suggestion"
 import CommandDataRenderer from "./command-data-renderer"
 import { CommandHandler } from "@/lib/command-handler"
 import { parseBackendResponse, type BackendResponse } from "@/lib/response-types"
+import { trackCommand, trackChatMessage } from "@/lib/analytics"
 
 interface Message {
   id: string
@@ -248,6 +249,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
       
       if (isCommand && commandMatch) {
         const command = commandMatch[1]
+        trackCommand(command)
+        trackChatMessage("command")
         
         // Check if /start has been used already
         if (command === "start" && hasUsedStart) {
@@ -307,6 +310,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
         }
       } else {
         // Natural language query - send to chat API
+        trackChatMessage("natural_language")
         const response = await fetch(
           "https://portana-api.aahil-khan.tech/api/chat/message",
           {

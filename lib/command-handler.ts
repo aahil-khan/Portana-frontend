@@ -6,6 +6,7 @@ import TimelineView from "@/components/timeline-view"
 import MiscView from "@/components/misc-view"
 import MatrixRain from "@/components/matrix-rain"
 import { API_URL } from "./config"
+import { trackEasterEgg } from "./analytics"
 
 export class CommandHandler {
   static getCommandComponent(command: string) {
@@ -88,6 +89,7 @@ export class CommandHandler {
             command: "contact",
           }
         case "hack":
+          trackEasterEgg("hack_matrix_rain")
           return {
             response: "🟢 Initiating hacking sequence...",
             component: MatrixRain,
