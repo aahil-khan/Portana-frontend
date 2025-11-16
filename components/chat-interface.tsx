@@ -50,7 +50,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     {
       id: "1",
       content:
-        "Hey! I'm Portana, Aahil's AI portfolio assistant. Type /start to get a complete introduction, or explore using commands like /projects, /experience, /stack, /blog, /resume, /contact, and more!",
+        "Hey! I'm Portana, Aahil's AI portfolio assistant. Type /start to get a complete introduction, or explore using commands on the sidebar!",
       sender: "assistant",
       timestamp: new Date(),
     },

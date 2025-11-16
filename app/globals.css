@@ -3,6 +3,26 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* @layer base {
+  html {
+    @apply cursor-none;
+  }
+  
+  body {
+    cursor: var(--cursor-default);
+  }
+
+  a,
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  .cursor-pointer {
+    cursor: var(--cursor-pointer);
+  }
+} */
+
 :root {
   --background: #0b0d10;
   --foreground: #e8eaed;
@@ -50,6 +70,8 @@
   --violet-glow: rgba(157, 123, 255, 0.3);
   --neon-cyan: #00d9ff;
   --neon-violet: #a78bfa;
+  --cursor-default: url("/cursor3.svg"), auto;
+  --cursor-pointer: url("/cursor3.svg"), auto;
 }
 
 .dark {

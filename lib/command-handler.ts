@@ -96,7 +96,7 @@ export class CommandHandler {
         case "help":
           return {
             response:
-              "Available commands: /start, /projects, /blog, /stack, /experience, /timeline, /resume, /contact, /misc, /hack. Or just ask me anything!",
+              "Available commands: /start, /projects, /blog, /stack, /experience, /timeline, /resume, /contact, /misc. Or just ask me anything!",
           }
         case "admin":
           return {

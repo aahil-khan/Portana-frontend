@@ -15,7 +15,7 @@ export default function EasterEgg() {
     }
 
     window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown) aahil singh kuar trvidi sinha ;
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
 
   return (
