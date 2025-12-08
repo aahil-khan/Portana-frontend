@@ -72,7 +72,7 @@ export default function StartView({ onNavigate }: StartViewProps) {
               <TypeAnimation
                 sequence={[
                   "Aahil Khan",
-                  7000,
+                  4000,
                   "Aahil Kha",
                   50,
                   "Aahil Kh",
@@ -108,7 +108,7 @@ export default function StartView({ onNavigate }: StartViewProps) {
                   "आहिल खा",
                   100,
                   "आहिल खान",
-                  7000,
+                  4000,
                   "आहिल खा",
                   50,
                   "आहिल ख",
@@ -140,7 +140,7 @@ export default function StartView({ onNavigate }: StartViewProps) {
                   "اعہل خا",
                   100,
                   "اعہل خان",
-                  7000,
+                  4000,
                   "اعہل خا",
                   50,
                   "اعہل خ",
