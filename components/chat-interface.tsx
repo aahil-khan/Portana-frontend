@@ -4,12 +4,15 @@ import type React from "react"
 
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react"
 import { Send } from "lucide-react"
+import { motion } from "framer-motion"
 import TopBar from "./top-bar"
 import ChatMessage from "./chat-message"
 import ContentCard from "./content-card"
 import Citations from "./citations"
 import CommandSuggestion from "./command-suggestion"
 import CommandDataRenderer from "./command-data-renderer"
+import CommandPalette from "./command-palette"
+import NeuralHubFAB from "./neural-hub-fab"
 import { CommandHandler } from "@/lib/command-handler"
 import { parseBackendResponse, type BackendResponse } from "@/lib/response-types"
 import { trackCommand, trackChatMessage } from "@/lib/analytics"
@@ -27,13 +30,15 @@ interface Message {
 
 interface ChatInterfaceHandle {
   sendMessage: (message: string) => void
+  started: boolean
 }
 
 interface ChatInterfaceProps {
   onMenuToggle?: () => void
+  onStartedChange?: (started: boolean) => void
 }
 
-const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onMenuToggle }, ref) => {
+const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onMenuToggle, onStartedChange }, ref) => {
   // Generate or retrieve unique session ID
   const [sessionId] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -47,16 +52,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   })
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content:
-        "Hey! I'm Portana, Aahil's AI portfolio assistant. Type /start to get a complete introduction, or explore using commands on the sidebar!",
-      sender: "assistant",
-      timestamp: new Date(),
-    },
-  ])
-  const [hasUsedStart, setHasUsedStart] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [started, setStarted] = useState(false)
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showCommands, setShowCommands] = useState(false)
@@ -64,6 +61,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
   const [showScrollButton, setShowScrollButton] = useState(false)
   const [isUserScrolling, setIsUserScrolling] = useState(false)
   const [topBarOffset, setTopBarOffset] = useState(0)
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -73,7 +71,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
   const commandItemsRef = useRef<(HTMLButtonElement | null)[]>([])
 
   const availableCommands = [
-    { command: "/start", description: "Welcome introduction & usage guide" },
     { command: "/projects", description: "View portfolio projects" },
     { command: "/blog", description: "Latest blog posts" },
     { command: "/stack", description: "Tech stack and specialties" },
@@ -181,23 +178,46 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     }
   }, [topBarOffset])
 
+  // Ctrl+P keyboard shortcut for command palette
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault()
+        setCommandPaletteOpen(prev => !prev)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   useImperativeHandle(ref, () => ({
-    sendMessage: (message: string) => {
-      handleSendMessage(message)
-    },
+    sendMessage: handleSendMessage,
+    started,
   }))
+
+  useEffect(() => {
+    onStartedChange?.(started)
+  }, [started, onStartedChange])
 
   const handleCommandSuggestion = async (command: string) => {
     try {
-      // Check if /start has been used already
-      if (command === "start" && hasUsedStart) {
-        const warningMessage: Message = {
+      // Handle start command locally
+      if (command === "start") {
+        setStarted(true)
+        const startMessage: Message = {
           id: Date.now().toString(),
-          content: "You've already used /start for this session! You can explore the other commands or ask me anything.",
+          content: "",
           sender: "assistant",
           timestamp: new Date(),
+          response: {
+            type: "command",
+            command: "start",
+            content: "",
+            data: null,
+          },
         }
-        setMessages((prev) => [...prev, warningMessage])
+        setMessages((prev) => [...prev, startMessage])
         return
       }
 
@@ -217,11 +237,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
       }
 
       setMessages((prev) => [...prev, commandMessage])
-      
-      // Mark /start as used
-      if (command === "start") {
-        setHasUsedStart(true)
-      }
     } catch (error) {
       console.error("Error fetching command:", error)
     }
@@ -252,15 +267,22 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
         trackCommand(command)
         trackChatMessage("command")
         
-        // Check if /start has been used already
-        if (command === "start" && hasUsedStart) {
-          const warningMessage: Message = {
+        // Handle start command locally
+        if (command === "start") {
+          setStarted(true)
+          const startMessage: Message = {
             id: (Date.now() + 1).toString(),
-            content: "You've already used /start for this session! You can explore the other commands or ask me anything.",
+            content: "",
             sender: "assistant",
             timestamp: new Date(),
+            response: {
+              type: "command",
+              command: "start",
+              content: "",
+              data: null,
+            },
           }
-          setMessages((prev) => [...prev, warningMessage])
+          setMessages((prev) => [...prev, startMessage])
           setIsLoading(false)
           return
         }
@@ -280,11 +302,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
             response: data,
           }
           setMessages((prev) => [...prev, assistantMessage])
-          
-          // Mark /start as used
-          if (command === "start") {
-            setHasUsedStart(true)
-          }
         } else {
           // Fallback to mock handler for unknown commands
           const result = CommandHandler.handleCommand(textToSend)
@@ -431,7 +448,74 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
         className="flex-1 overflow-y-auto px-3 md:px-8 py-4 md:py-6 space-y-4 md:space-y-6 overscroll-contain"
         style={{ paddingBottom: "calc(100vh - 12rem)" }}
       >
-        <div className="max-w-4xl mx-auto w-full space-y-4 md:space-y-6">
+        {!started && messages.length === 0 ? (
+          <div className="flex items-center justify-center min-h-[calc(100vh-12rem)]">
+            <motion.button
+              onClick={() => {
+                setStarted(true)
+                const startMessage: Message = {
+                  id: Date.now().toString(),
+                  content: "",
+                  sender: "assistant",
+                  timestamp: new Date(),
+                  response: {
+                    type: "command",
+                    command: "start",
+                    content: "",
+                    data: null,
+                  },
+                }
+                setMessages([startMessage])
+              }}
+              className="group relative overflow-hidden rounded-2xl px-8 py-4"
+              style={{
+                background: "linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)",
+                backdropFilter: "blur(20px)",
+                border: "2px solid rgba(0, 217, 255, 0.3)",
+              }}
+              whileHover={{
+                scale: 1.05,
+                borderColor: "rgba(0, 217, 255, 0.5)",
+              }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: [1, 1.02, 1],
+                boxShadow: [
+                  "0 0 20px rgba(0, 217, 255, 0.2)",
+                  "0 0 40px rgba(0, 217, 255, 0.4)",
+                  "0 0 20px rgba(0, 217, 255, 0.2)",
+                ],
+              }}
+              transition={{
+                duration: 0.5,
+                scale: {
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                },
+                boxShadow: {
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                },
+              }}
+            >
+              <div className="text-3xl md:text-4xl font-bold text-[#00d9ff] font-display">
+                /start
+              </div>
+              
+              {/* Hover glow effect */}
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-2xl"
+                style={{ background: "radial-gradient(circle, rgba(0, 217, 255, 0.3) 0%, transparent 70%)" }}
+              />
+            </motion.button>
+          </div>
+        ) : (
+          <div className="max-w-4xl mx-auto w-full space-y-4 md:space-y-6">
           {messages.map((msg, index) => (
             <div 
               key={msg.id} 
@@ -439,7 +523,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
               ref={msg.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
               style={msg.sender === "user" ? { scrollMarginTop: `${topBarOffset}px` } : undefined}
             >
-              <ChatMessage message={msg} />
+              {msg.content && <ChatMessage message={msg} />}
 
               {/* Handle different response types */}
               {msg.response?.type === "text" && (
@@ -473,6 +557,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
                 <CommandDataRenderer
                   command={msg.response.command}
                   data={msg.response.data}
+                  onNavigate={handleSendMessage}
                 />
               )}
 
@@ -489,7 +574,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
             </div>
           )}
           <div ref={messagesEndRef} />
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Scroll to Bottom Button */}
@@ -530,10 +616,10 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
                 value={input}
                 onChange={(e) => setInput(e.target.value.slice(0, 500))}
                 onKeyDown={handleKeyDown}
-                placeholder="> Ask me anything or use /help"
+                placeholder={started ? "> Ask me anything or use /help" : "Click Start to begin..."}
                 maxLength={500}
-                className="w-full bg-[#1a1f3a] text-foreground placeholder-[#94a3b8] border border-[#1e293b] rounded-lg px-4 py-3 font-mono text-sm focus:outline-none focus:border-[#00d9ff] focus:ring-2 focus:ring-[#00d9ff]/20 transition-all"
-                disabled={isLoading}
+                className="w-full bg-[#1a1f3a] text-foreground placeholder-[#94a3b8] border border-[#1e293b] rounded-lg px-4 py-3 font-mono text-sm focus:outline-none focus:border-[#00d9ff] focus:ring-2 focus:ring-[#00d9ff]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading || !started}
               />
               
               {/* Command Suggestions Dropdown */}
@@ -566,7 +652,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
             </div>
             <button
               type="submit"
-              disabled={isLoading || !input.trim()}
+              disabled={isLoading || !input.trim() || !started}
               className="bg-[#00d9ff] hover:bg-[#00b8cc] disabled:opacity-50 disabled:cursor-not-allowed text-[#0a0e27] font-semibold px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-2"
             >
               <Send size={18} />
@@ -574,6 +660,19 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
           </form>
         </div>
       </div>
+
+      {/* Command Palette - Desktop (Ctrl+P) & Mobile (Neural Hub FAB) */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onSelectCommand={(cmd) => {
+          setCommandPaletteOpen(false)
+          handleSendMessage(cmd)
+        }}
+      />
+      
+      {/* Neural Hub FAB - Mobile Only */}
+      {started && <NeuralHubFAB onClick={() => setCommandPaletteOpen(true)} />}
     </div>
   )
 })
@@ -581,3 +680,4 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
 ChatInterface.displayName = "ChatInterface"
 
 export default ChatInterface
+

@@ -8,9 +8,10 @@ interface MobileMenuProps {
   isOpen: boolean
   onClose: () => void
   onNavigate?: (command: string) => void
+  disabled?: boolean
 }
 
-export default function MobileMenu({ isOpen, onClose, onNavigate }: MobileMenuProps) {
+export default function MobileMenu({ isOpen, onClose, onNavigate, disabled = false }: MobileMenuProps) {
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -41,6 +42,7 @@ export default function MobileMenu({ isOpen, onClose, onNavigate }: MobileMenuPr
   ]
 
   const handleNavClick = (command: string) => {
+    if (disabled) return
     onNavigate?.(command)
     onClose()
   }
@@ -81,7 +83,9 @@ export default function MobileMenu({ isOpen, onClose, onNavigate }: MobileMenuPr
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.05 }}
                         onClick={() => handleNavClick(link.command)}
-                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1a1f3a] text-[#e0e7ff] hover:text-[#00d9ff] transition-all"
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1a1f3a] text-[#e0e7ff] hover:text-[#00d9ff] transition-all ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                        disabled={disabled}
+                        title={disabled ? "Click /start first" : link.label}
                       >
                         <Icon size={18} />
                         <span className="text-sm font-medium">{link.label}</span>

@@ -11,7 +11,8 @@ export default function Home() {
   const [showBoot, setShowBoot] = useState(true)
   const [bootComplete, setBootComplete] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const chatInterfaceRef = useRef<{ sendMessage: (message: string) => void } | null>(null)
+  const [started, setStarted] = useState(false)
+  const chatInterfaceRef = useRef<{ sendMessage: (message: string) => void; started: boolean } | null>(null)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -41,14 +42,19 @@ export default function Home() {
         {showBoot && <BootScreen complete={bootComplete} />}
         {!showBoot && (
           <>
-            <Sidebar onNavigate={handleSidebarNavigate} />
+            <Sidebar onNavigate={handleSidebarNavigate} disabled={!started} />
             <div className="lg:ml-20">
-              <ChatInterface ref={chatInterfaceRef} onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
+              <ChatInterface 
+                ref={chatInterfaceRef} 
+                onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onStartedChange={setStarted}
+              />
             </div>
             <MobileMenu 
               isOpen={mobileMenuOpen} 
               onClose={() => setMobileMenuOpen(false)}
               onNavigate={handleSidebarNavigate}
+              disabled={!started}
             />
           </>
         )}

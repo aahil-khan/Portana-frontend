@@ -6,9 +6,10 @@ import { useState } from "react"
 
 interface SidebarProps {
   onNavigate?: (command: string) => void
+  disabled?: boolean
 }
 
-export default function Sidebar({ onNavigate }: SidebarProps) {
+export default function Sidebar({ onNavigate, disabled = false }: SidebarProps) {
   const [hoveredLink, setHoveredLink] = useState<string | null>(null)
 
   const navLinks = [
@@ -27,6 +28,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
   ]
 
   const handleNavClick = (command: string) => {
+    if (disabled) return
     onNavigate?.(command)
   }
 
@@ -52,12 +54,12 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 + idx * 0.08, type: "spring", stiffness: 200 }}
-              onMouseEnter={() => setHoveredLink(link.command)}
+              onMouseEnter={() => !disabled && setHoveredLink(link.command)}
               onMouseLeave={() => setHoveredLink(null)}
             >
               <motion.button
                 onClick={() => handleNavClick(link.command)}
-                className="relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 group"
+                className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 group ${disabled ? 'cursor-not-allowed' : ''}`}
                 style={{
                   background: hoveredLink === link.command ? "rgba(0, 217, 255, 0.1)" : "rgba(255, 255, 255, 0.05)",
                   border:
@@ -67,10 +69,11 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
                     hoveredLink === link.command
                       ? "0 0 20px rgba(0, 217, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1)"
                       : "inset 0 1px 1px rgba(255, 255, 255, 0.05)",
+                  opacity: disabled ? 0.4 : 1,
                 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                title={link.label}
+                whileHover={disabled ? {} : { scale: 1.1 }}
+                whileTap={disabled ? {} : { scale: 0.95 }}
+                title={disabled ? "Click /start first" : link.label}
               >
                 <Icon
                   size={20}

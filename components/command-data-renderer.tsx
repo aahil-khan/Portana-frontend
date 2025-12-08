@@ -7,6 +7,7 @@ import ProjectsView from "./projects-view"
 import StackView from "./stack-view"
 import ExperienceView from "./experience-view"
 import TimelineView from "./timeline-view"
+import StartView from "./start-view"
 import LinkRenderer from "./link-renderer"
 import ContactForm from "./contact-form"
 import ResumeDownload from "./resume-download"
@@ -15,6 +16,7 @@ import ExtensionsSetup from "./extensions-setup"
 interface CommandDataRendererProps {
   command: string
   data: any
+  onNavigate?: (command: string) => void
 }
 
 /**
@@ -24,6 +26,7 @@ interface CommandDataRendererProps {
 export default function CommandDataRenderer({
   command,
   data,
+  onNavigate,
 }: CommandDataRendererProps) {
   // Guard against undefined command (data can be null for some commands like contact and resume)
   if (!command) {
@@ -49,6 +52,10 @@ export default function CommandDataRenderer({
       animate="show"
       className="mt-4"
     >
+      {command === "start" && (
+        <StartView onNavigate={onNavigate} />
+      )}
+
       {command === "projects" && Array.isArray(data) && data.length > 0 && (
         <motion.div className="space-y-3 md:space-y-4" variants={container} initial="hidden" animate="show">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
@@ -110,29 +117,115 @@ export default function CommandDataRenderer({
       )}
 
       {command === "stack" && Array.isArray(data) && data.length > 0 && (
-        <motion.div className="space-y-4 md:space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          {data.map((category: any, i: number) => (
-            <motion.div
-              key={category.name}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <h3 className="text-xs md:text-sm font-display font-bold text-[#00d9ff] mb-2 md:mb-3">
-                {category.name}
-              </h3>
-              <div className="flex flex-wrap gap-1.5 md:gap-2">
-                {category.tools?.map((tool: string, j: number) => (
-                  <span
-                    key={j}
-                    className="px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm bg-[#1a1f3a] text-[#e0e7ff] border border-[#1e293b] rounded-lg hover:border-[#00d9ff]/50 hover:text-[#00d9ff] transition-all cursor-default"
-                  >
-                    {tool}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
+        <motion.div className="space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          {data.map((category: any, i: number) => {
+            // Logo mapping to local files
+            const logoMap: Record<string, { file: string; invert: boolean }> = {
+              "React.js": { file: "react-original.svg", invert: false },
+              "Next.js": { file: "nextjs-original.svg", invert: true },
+              "TypeScript": { file: "javascript-original.svg", invert: false },
+              "Tailwind CSS": { file: "tailwindcss-original.svg", invert: false },
+              "Framer Motion": { file: "react-original.svg", invert: false },
+              "Node.js": { file: "nodejs-original.svg", invert: false },
+              "Fastify": { file: "nodejs-original.svg", invert: false },
+              "PostgreSQL": { file: "postgresql-original.svg", invert: false },
+              "PostgreSQL FTS" : { file: "postgresql-original.svg", invert: false },
+              "Python": { file: "python-original.svg", invert: false },
+              "OpenAI Embeddings": { file: "openai.png", invert: true },
+              "OpenAI Chat Completions Endpoint": { file: "openai.png", invert: true },
+              "OpenAI Assistants API": { file: "openai.png", invert: true },
+              "Prompt Engineering": { file: "openai.png", invert: true },
+              "GPT-4o": { file: "python-original.svg", invert: false },
+              "Vercel": { file: "vercel-original.svg", invert: true },
+              "Git": { file: "git-original.svg", invert: false },
+              "GitHub": { file: "github-original.svg", invert: true },
+              "Github Actions": { file: "github-original.svg", invert: true },
+              "VS Code": { file: "javascript-original.svg", invert: false },
+              "Docker": { file: "docker-original.svg", invert: false },
+              "Figma": { file: "react-original.svg", invert: false },
+              "Express.js": { file: "express-original.svg", invert: true },
+              "Redis": { file: "redis-original.svg", invert: false },
+              "AWS (EC2)": { file: "amazonwebservices-original-wordmark.svg", invert: true },
+              "Amazon Web Services": { file: "amazonwebservices-original-wordmark.svg", invert: false },
+              "GraphQL": { file: "graphql-plain.svg", invert: false },
+              "MySQL": { file: "mysql-original.svg", invert: true },
+              "Flask": { file: "flask-original.svg", invert: true },
+              "Jest (unit testing)": { file: "jest-plain.svg", invert: false },
+              "Prisma": { file: "prisma-original.svg", invert: false },
+              "HTML": { file: "html5-original.svg", invert: false },
+              "CSS": { file: "css3-original.svg", invert: false },
+              "JavaScript": { file: "javascript-original.svg", invert: false },
+              "Java": { file: "java-original.svg", invert: false },
+              "C": { file: "c-original.svg", invert: false },
+              "C++": { file: "cplusplus-original.svg", invert: false },
+              "Vue": { file: "vuejs-original.svg", invert: false },
+              "Vue.js": { file: "vuejs-original.svg", invert: false },
+              "Elasticsearch": { file: "elasticsearch-original.svg", invert: true },
+              "SQLAlchemy": { file: "sqlalchemy-original.svg", invert: true },
+              "Heroku": { file: "heroku-original.svg", invert: false },
+              "Cloudflare Tunnels": { file: "cloudflare-original.svg", invert: false },
+              "Postman": { file: "postman-original.svg", invert: false },
+              "Bootstrap": { file: "bootstrap-original.svg", invert: false },
+              "Kali": { file: "kalilinux-original.svg", invert: false },
+              "Kali Linux": { file: "kalilinux-original.svg", invert: false },
+              "SQLite": { file: "sqlite-original.svg", invert: false },
+              "LangChain": { file: "langchain.png", invert: true },
+              "Qdrant": { file: "qdrant.png", invert: false },
+              "CI/CD pipelines": { file: "cicd.png", invert: true },
+              "WSL": { file: "wsl.png", invert: false },
+              "REST APIs": { file: "rest.png", invert: true },
+              "Jinja2": { file: "jinja.png", invert: true },
+              "MUI": { file: "mui.png", invert: true }
+            }
+
+            return (
+              <motion.div
+                key={category.name}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="p-3 rounded-lg border border-[#1e293b] hover:border-[#00d9ff]/30 transition-all backdrop-blur-sm"
+                style={{
+                  background: "rgba(26, 31, 58, 0.4)"
+                }}
+              >
+                <h3 className="text-sm font-display font-bold text-[#00d9ff] mb-2.5">
+                  {category.name}
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                  {category.tools?.map((tool: string, j: number) => {
+                    const logoInfo = logoMap[tool]
+                    
+                    return (
+                      <motion.div
+                        key={j}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: i * 0.05 + j * 0.02 }}
+                        className="flex items-center gap-2 px-2.5 py-2 rounded-md bg-[#0f1419]/80 border border-[#1e293b] hover:border-[#00d9ff]/40 hover:bg-[#0f1419] transition-all cursor-default group"
+                      >
+                        {logoInfo ? (
+                          <img
+                            src={`/Logos/${logoInfo.file}`}
+                            alt={tool}
+                            className="w-4 h-4 shrink-0 object-contain"
+                            style={{
+                              filter: logoInfo.invert ? "invert(1) brightness(2)" : "none"
+                            }}
+                          />
+                        ) : (
+                          <div className="w-4 h-4 shrink-0 flex items-center justify-center text-[#00d9ff] text-xs">●</div>
+                        )}
+                        <span className="text-xs text-[#94a3b8] group-hover:text-[#00d9ff] transition-colors truncate">
+                          {tool}
+                        </span>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              </motion.div>
+            )
+          })}
         </motion.div>
       )}
 
