@@ -9,24 +9,15 @@ import MobileMenu from "@/components/mobile-menu"
 
 export default function Home() {
   const [showBoot, setShowBoot] = useState(true)
-  const [bootComplete, setBootComplete] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const chatInterfaceRef = useRef<{ sendMessage: (message: string) => void } | null>(null)
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setBootComplete(true)
-    }, 3500)
-
-    const fadeTimer = setTimeout(() => {
+  const handleGenesisComplete = () => {
+    // Wait 300ms for final fade, then hide boot screen
+    setTimeout(() => {
       setShowBoot(false)
-    }, 4000)
-
-    return () => {
-      clearTimeout(timer)
-      clearTimeout(fadeTimer)
-    }
-  }, [])
+    }, 300)
+  }
 
   const handleSidebarNavigate = (command: string) => {
     chatInterfaceRef.current?.sendMessage(command)
@@ -38,7 +29,7 @@ export default function Home() {
       <BackgroundEffects />
 
       <main className="min-h-screen bg-background">
-        {showBoot && <BootScreen complete={bootComplete} />}
+        {showBoot && <BootScreen complete={false} onGenesisComplete={handleGenesisComplete} />}
         {!showBoot && (
           <>
             <Sidebar onNavigate={handleSidebarNavigate} />
