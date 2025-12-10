@@ -73,7 +73,8 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
             </p>
             <p>
                 My projects reflect who I am: <span className="text-[#00d9ff]">practical</span>,{" "}
-                <span className="text-[#a78bfa]">thoughtful</span>, and <span className="bg-gradient-to-r from-[#00d9ff] to-[#a78bfa] bg-clip-text text-transparent">always learning</span>. If something feels 
+                <span className="text-[#a78bfa]">thoughtful</span>, and{" "}
+                <span className="bg-gradient-to-r from-[#00d9ff] to-[#a78bfa] bg-clip-text text-transparent">always learning</span>. If something feels 
                 meaningful or genuinely helpful, I'll usually try to turn it into a real product.
             </p>
           </div>

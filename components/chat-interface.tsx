@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react"
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle, useMemo } from "react"
 import { Send } from "lucide-react"
 import { motion } from "framer-motion"
 import TopBar from "./top-bar"
@@ -200,6 +200,16 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     onStartedChange?.(started)
   }, [started, onStartedChange])
 
+  const lastUserMessageIndex = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]
+      if (m.sender === "user" && (m.content?.trim() ?? "") !== "") {
+        return i
+      }
+    }
+    return -1
+  }, [messages])
+
   const handleCommandSuggestion = async (command: string) => {
     try {
       // Handle start command locally
@@ -218,6 +228,24 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
           },
         }
         setMessages((prev) => [...prev, startMessage])
+        return
+      }
+
+      // Handle about command locally (no backend needed)
+      if (command === "about") {
+        const aboutMessage: Message = {
+          id: Date.now().toString(),
+          content: "",
+          sender: "assistant",
+          timestamp: new Date(),
+          response: {
+            type: "command",
+            command: "about",
+            content: "",
+            data: null,
+          },
+        }
+        setMessages((prev) => [...prev, aboutMessage])
         return
       }
 
@@ -254,6 +282,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     }
 
     setMessages((prev) => [...prev, userMessage])
+    // Ensure the latest user command scrolls into view before we append assistant responses
+    requestAnimationFrame(() => scrollUserMessageToTop())
     setInput("")
     setIsLoading(true)
 
@@ -283,6 +313,25 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
             },
           }
           setMessages((prev) => [...prev, startMessage])
+          setIsLoading(false)
+          return
+        }
+
+        // Handle about command locally (no backend needed)
+        if (command === "about") {
+          const aboutMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: "",
+            sender: "assistant",
+            timestamp: new Date(),
+            response: {
+              type: "command",
+              command: "about",
+              content: "",
+              data: null,
+            },
+          }
+          setMessages((prev) => [...prev, aboutMessage])
           setIsLoading(false)
           return
         }
@@ -516,14 +565,24 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
           </div>
         ) : (
           <div className="max-w-4xl mx-auto w-full space-y-4 md:space-y-6">
-          {messages.map((msg, index) => (
-            <div 
-              key={msg.id} 
-              className="space-y-2"
-              ref={msg.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
-              style={msg.sender === "user" ? { scrollMarginTop: `${topBarOffset}px` } : undefined}
-            >
-              {msg.content && <ChatMessage message={msg} />}
+          {messages.map((msg, index) => {
+            const hasContent = msg.content && msg.content.trim() !== ""
+            const hasResponse = Boolean(msg.response)
+            const hasComponent = !!msg.component
+
+            // Skip rendering if there's nothing to show
+            if (!hasContent && !hasResponse && !hasComponent) {
+              return null
+            }
+
+            return (
+              <div 
+                key={msg.id} 
+                className="space-y-2"
+                ref={msg.sender === "user" && index === lastUserMessageIndex ? lastUserMessageRef : null}
+                style={msg.sender === "user" ? { scrollMarginTop: `${topBarOffset}px` } : undefined}
+              >
+                {hasContent && <ChatMessage message={msg} />}
 
               {/* Handle different response types */}
               {msg.response?.type === "text" && (
@@ -561,10 +620,11 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
                 />
               )}
 
-              {/* Fallback for legacy component rendering */}
-              {msg.component && <ContentCard component={msg.component} onComplete={msg.onComplete} />}
-            </div>
-          ))}
+                {/* Fallback for legacy component rendering */}
+                {msg.component && <ContentCard component={msg.component} onComplete={msg.onComplete} />}
+              </div>
+            )
+          })}
 
           {isLoading && (
             <div className="flex gap-2">
