@@ -75,7 +75,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     { command: "/blog", description: "Latest blog posts" },
     { command: "/stack", description: "Tech stack and specialties" },
     { command: "/experience", description: "Professional experience" },
-    { command: "/timeline", description: "Professional timeline" },
     { command: "/resume", description: "Download my resume" },
     { command: "/contact", description: "Contact form" },
     { command: "/misc", description: "Miscellaneous tools" },

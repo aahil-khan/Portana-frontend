@@ -1,6 +1,6 @@
 "use client"
 
-import { Github, Linkedin, Code2, BookOpen, Layers, Clock, Zap, FileText, Mail, User } from "lucide-react"
+import { Github, Linkedin, Code2, BookOpen, Layers, Briefcase, Zap, FileText, Mail, User } from "lucide-react"
 import { motion } from "framer-motion"
 import { useState } from "react"
 
@@ -17,7 +17,7 @@ export default function Sidebar({ onNavigate, disabled = false }: SidebarProps) 
     { icon: Code2, label: "Projects", command: "/projects" },
     { icon: BookOpen, label: "Blog", command: "/blog" },
     { icon: Layers, label: "Stack", command: "/stack" },
-    { icon: Clock, label: "Timeline", command: "/timeline" },
+    { icon: Briefcase, label: "Experience", command: "/experience" },
     { icon: FileText, label: "Resume", command: "/resume" },
     { icon: Mail, label: "Contact", command: "/contact" },
     { icon: Zap, label: "Misc", command: "/misc" },
