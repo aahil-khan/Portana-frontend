@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
 import { TypeAnimation } from "react-type-animation"
-import { Code2, BookOpen, Layers, Clock, FileText, Mail, Zap, MessageSquare, Briefcase } from "lucide-react"
+import { Code2, BookOpen, Layers, Clock, FileText, Mail, Zap, MessageSquare, Briefcase, User } from "lucide-react"
 
 interface StartViewProps {
   onNavigate?: (command: string) => void
@@ -11,10 +11,10 @@ interface StartViewProps {
 
 export default function StartView({ onNavigate }: StartViewProps) {
   const quickCommands = [
+    { icon: User, label: "About Me", command: "/about", description: "Get to know me" },
     { icon: Code2, label: "Projects", command: "/projects", description: "Explore my work" },
     { icon: BookOpen, label: "Blog", command: "/blog", description: "Read my articles" },
     { icon: Layers, label: "Tech Stack", command: "/stack", description: "My expertise" },
-    { icon: Briefcase, label: "Experience", command: "/experience", description: "Professional journey" },
   ]
 
   const moreCommands = [

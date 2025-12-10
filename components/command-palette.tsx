@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, X, Code2, BookOpen, Layers, Clock, FileText, Mail, Zap, HelpCircle, Rocket, Briefcase } from "lucide-react"
+import { Search, X, Code2, BookOpen, Layers, Clock, FileText, Mail, Zap, HelpCircle, Rocket, Briefcase, User } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 interface Command {
@@ -14,15 +14,16 @@ interface Command {
 }
 
 const commands: Command[] = [
-  { id: "1", command: "/projects", label: "Projects", description: "View all projects", icon: Code2 },
-  { id: "2", command: "/blog", label: "Blog", description: "Read blog posts", icon: BookOpen },
-  { id: "3", command: "/stack", label: "Tech Stack", description: "Explore technologies", icon: Layers },
-  { id: "4", command: "/timeline", label: "Timeline", description: "Career journey", icon: Clock },
-  { id: "5", command: "/experience", label: "Experience", description: "Work history", icon: Briefcase },
-  { id: "6", command: "/resume", label: "Resume", description: "Download resume", icon: FileText },
-  { id: "7", command: "/contact", label: "Contact", description: "Get in touch", icon: Mail },
-  { id: "8", command: "/misc", label: "Misc", description: "Other information", icon: Zap },
-  { id: "9", command: "/help", label: "Help", description: "Get help", icon: HelpCircle },
+  { id: "1", command: "/about", label: "About", description: "Learn about me", icon: User },
+  { id: "2", command: "/projects", label: "Projects", description: "View all projects", icon: Code2 },
+  { id: "3", command: "/blog", label: "Blog", description: "Read blog posts", icon: BookOpen },
+  { id: "4", command: "/stack", label: "Tech Stack", description: "Explore technologies", icon: Layers },
+  { id: "5", command: "/timeline", label: "Timeline", description: "Career journey", icon: Clock },
+  { id: "6", command: "/experience", label: "Experience", description: "Work history", icon: Briefcase },
+  { id: "7", command: "/resume", label: "Resume", description: "Download resume", icon: FileText },
+  { id: "8", command: "/contact", label: "Contact", description: "Get in touch", icon: Mail },
+  { id: "9", command: "/misc", label: "Misc", description: "Other information", icon: Zap },
+  { id: "10", command: "/help", label: "Help", description: "Get help", icon: HelpCircle },
 ]
 
 interface CommandPaletteProps {

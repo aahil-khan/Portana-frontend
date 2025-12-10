@@ -96,8 +96,9 @@ export interface ChatOptions {
 }
 
 export interface ChatQuery {
-  query: string;
-  session_id?: string;
+  sessionId: string;
+  message: string;
+  onboardingSessionId?: string;
   filters?: ChatFilters;
   options?: ChatOptions;
 }
@@ -112,9 +113,11 @@ export interface ChatSource {
 }
 
 export interface ChatSSEEvent {
-  type: "sources" | "token" | "done";
-  sources?: ChatSource[];
+  status?: "connected" | "done" | "error";
+  type?: "chunk" | "complete";
   content?: string;
+  data?: any;
+  error?: string;
   total_tokens?: number;
   response_time_ms?: number;
   session_id?: string;

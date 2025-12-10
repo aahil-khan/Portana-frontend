@@ -1,6 +1,6 @@
 "use client"
 
-import { Github, Linkedin, Code2, BookOpen, Layers, Clock, Zap, FileText, Mail } from "lucide-react"
+import { Github, Linkedin, Code2, BookOpen, Layers, Clock, Zap, FileText, Mail, User } from "lucide-react"
 import { motion } from "framer-motion"
 import { useState } from "react"
 
@@ -13,6 +13,7 @@ export default function Sidebar({ onNavigate, disabled = false }: SidebarProps) 
   const [hoveredLink, setHoveredLink] = useState<string | null>(null)
 
   const navLinks = [
+    { icon: User, label: "About", command: "/about" },
     { icon: Code2, label: "Projects", command: "/projects" },
     { icon: BookOpen, label: "Blog", command: "/blog" },
     { icon: Layers, label: "Stack", command: "/stack" },

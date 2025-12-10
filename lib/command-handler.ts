@@ -78,6 +78,11 @@ export class CommandHandler {
             response: "Welcome! Let me introduce myself:",
             command: "start",
           }
+        case "about":
+          return {
+            response: "Let me tell you a bit about myself:",
+            command: "about",
+          }
         case "resume":
           return {
             response: "Here's my resume! Download it to see my full professional background:",
@@ -98,7 +103,7 @@ export class CommandHandler {
         case "help":
           return {
             response:
-              "Available commands: /start, /projects, /blog, /stack, /experience, /timeline, /resume, /contact, /misc. Or just ask me anything!",
+              "Available commands: /start, /about, /projects, /blog, /stack, /experience, /timeline, /resume, /contact, /misc. Or just ask me anything!",
           }
         case "admin":
           return {

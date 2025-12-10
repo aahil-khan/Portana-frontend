@@ -8,6 +8,7 @@ import StackView from "./stack-view"
 import ExperienceView from "./experience-view"
 import TimelineView from "./timeline-view"
 import StartView from "./start-view"
+import AboutView from "./about-view"
 import LinkRenderer from "./link-renderer"
 import ContactForm from "./contact-form"
 import ResumeDownload from "./resume-download"
@@ -56,6 +57,10 @@ export default function CommandDataRenderer({
         <StartView onNavigate={onNavigate} />
       )}
 
+      {command === "about" && (
+        <AboutView onNavigate={onNavigate} />
+      )}
+
       {command === "projects" && Array.isArray(data) && data.length > 0 && (
         <motion.div className="space-y-3 md:space-y-4" variants={container} initial="hidden" animate="show">
           <div className="grid grid-cols-1 gap-3 md:gap-4">
@@ -88,27 +93,44 @@ export default function CommandDataRenderer({
                     </span>
                   ))}
                 </div>
-                <div className="flex gap-3">
-                  {project.link && project.link !== "#" && (
-                    <motion.button
-                      whileHover={{ scale: 1.2 }}
-                      onClick={() => window.open(project.link, "_blank")}
-                      className="cursor-pointer hover:text-[#00d9ff] transition-colors"
-                      type="button"
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex gap-3">
+                    {project.link && project.link !== "#" && (
+                      <motion.button
+                        whileHover={{ scale: 1.2 }}
+                        onClick={() => window.open(project.link, "_blank")}
+                        className="cursor-pointer hover:text-[#00d9ff] transition-colors"
+                        type="button"
+                      >
+                        <ExternalLink size={16} className="text-[#94a3b8]" />
+                      </motion.button>
+                    )}
+                    {project.github && project.github !== "#" && (
+                      <motion.button
+                        whileHover={{ scale: 1.2 }}
+                        onClick={() => window.open(project.github, "_blank")}
+                        className="cursor-pointer hover:text-[#00d9ff] transition-colors"
+                        type="button"
+                      >
+                        <Github size={16} className="text-[#94a3b8]" />
+                      </motion.button>
+                    )}
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05, x: 5 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => onNavigate?.(`Tell me more about ${project.title}`)}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#00d9ff]/10 border border-[#00d9ff]/30 hover:bg-[#00d9ff]/20 hover:border-[#00d9ff]/50 transition-all text-[#00d9ff] text-xs font-medium"
+                    type="button"
+                  >
+                    <span>know more</span>
+                    <motion.span
+                      animate={{ x: [0, 3, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                     >
-                      <ExternalLink size={16} className="text-[#94a3b8]" />
-                    </motion.button>
-                  )}
-                  {project.github && project.github !== "#" && (
-                    <motion.button
-                      whileHover={{ scale: 1.2 }}
-                      onClick={() => window.open(project.github, "_blank")}
-                      className="cursor-pointer hover:text-[#00d9ff] transition-colors"
-                      type="button"
-                    >
-                      <Github size={16} className="text-[#94a3b8]" />
-                    </motion.button>
-                  )}
+                      →
+                    </motion.span>
+                  </motion.button>
                 </div>
               </motion.div>
             ))}
@@ -377,7 +399,7 @@ export default function CommandDataRenderer({
         <ExtensionsSetup />
       )}
 
-      {!["start", "projects", "stack", "experience", "timeline", "blog", "resume", "contact", "misc"].includes(command) && (
+      {!["start", "about", "projects", "stack", "experience", "timeline", "blog", "resume", "contact", "misc"].includes(command) && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
