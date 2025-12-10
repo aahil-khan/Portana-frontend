@@ -58,7 +58,7 @@ export default function CommandDataRenderer({
 
       {command === "projects" && Array.isArray(data) && data.length > 0 && (
         <motion.div className="space-y-3 md:space-y-4" variants={container} initial="hidden" animate="show">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 gap-3 md:gap-4">
             {data.map((project: any, idx: number) => (
               <motion.div
                 key={project.id}
