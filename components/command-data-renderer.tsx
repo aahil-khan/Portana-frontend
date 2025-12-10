@@ -251,46 +251,8 @@ export default function CommandDataRenderer({
         </motion.div>
       )}
 
-      {command === "experience" && Array.isArray(data) && data.length > 0 && (
-        <motion.div className="space-y-3 md:space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          {data.map((exp: any, i: number) => (
-            <motion.div
-              key={exp.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="p-3 md:p-4 rounded-lg border border-[#1e293b] backdrop-blur-md"
-              style={{
-                background: "var(--glass-bg)",
-                backdropFilter: "blur(10px)",
-              }}
-            >
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-2">
-                <div>
-                  <h3 className="text-sm md:text-base font-display font-bold text-[#e0e7ff]">
-                    {exp.title}
-                  </h3>
-                  <p className="text-xs text-[#00d9ff]">{exp.company}</p>
-                  <p className="text-xs text-[#94a3b8] md:hidden">{exp.duration}</p>
-                </div>
-                <p className="hidden md:block text-xs text-[#94a3b8]">{exp.duration}</p>
-              </div>
-              <p className="text-xs md:text-sm text-[#94a3b8] mb-3 line-clamp-3">{exp.description}</p>
-              {exp.technologies && (
-                <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3">
-                  {exp.technologies.map((tech: string, j: number) => (
-                    <span
-                      key={j}
-                      className="text-xs bg-[#1a1f3a] text-[#00d9ff] px-1.5 py-0.5 md:px-2 md:py-1 rounded"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          ))}
-        </motion.div>
+      {command === "experience" && (
+        <ExperienceView data={Array.isArray(data) && data.length > 0 ? data : undefined} onNavigate={onNavigate} />
       )}
 
       {command === "timeline" && Array.isArray(data) && data.length > 0 && (
