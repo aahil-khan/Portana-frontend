@@ -638,27 +638,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
         )}
       </div>
 
-      {/* Scroll to Bottom Button */}
-      {showScrollButton && (
-        <button
-          onClick={scrollToBottom}
-          className="fixed bottom-24 right-4 md:right-8 bg-[#00d9ff] hover:bg-[#00b8cc] text-[#0a0e27] rounded-full p-3 shadow-lg transition-all duration-200 z-30 animate-in fade-in slide-in-from-bottom-2"
-          aria-label="Scroll to bottom"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 5v14M19 12l-7 7-7-7" />
-          </svg>
-        </button>
-      )}
+
 
       <div
         className="border-t border-[#1e293b] bg-background/95 backdrop-blur px-3 md:px-8 py-4 md:py-6 sticky z-40"
