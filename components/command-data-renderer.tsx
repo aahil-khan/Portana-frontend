@@ -64,7 +64,6 @@ export default function CommandDataRenderer({
                 key={project.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
                 whileHover={{ scale: 1.02 }}
                 className="group p-3 md:p-6 rounded-lg border border-[#1e293b] transition-all backdrop-blur-md hover:border-[#00d9ff]/50"
                 style={{
@@ -202,7 +201,6 @@ export default function CommandDataRenderer({
                         key={j}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: i * 0.05 + j * 0.02 }}
                         whileHover={{ scale: 1.05 }}
                         className="flex items-center gap-2 px-2.5 py-2 rounded-md bg-[#0f1419]/80 border border-[#1e293b] hover:border-[#00d9ff]/40 hover:bg-[#0f1419] transition-all cursor-default group"
                       >
