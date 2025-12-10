@@ -124,7 +124,7 @@ export default function MobileMenu({ isOpen, onClose, onNavigate, disabled = fal
                 {/* Footer Info */}
                 <div className="mt-auto pt-4 border-t border-[#1e293b]">
                   <p className="text-xs text-[#94a3b8] px-3">
-                    Portana v1.1.0<br />
+                    Portana v2.0.0<br />
                     AI Portfolio Assistant
                   </p>
                 </div>

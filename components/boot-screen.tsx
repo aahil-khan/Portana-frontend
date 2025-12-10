@@ -8,7 +8,7 @@ const bootMessages = [
   "Loading neural pathways...",
   "Syncing knowledge nodes...",
   "Calibrating response protocols...",
-  "Portana v1.1.0",
+  "Portana v2.0.0",
   "> Ready for interaction",
 ]
 
