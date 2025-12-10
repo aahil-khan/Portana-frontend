@@ -106,27 +106,28 @@ export default function MatrixRain({ onComplete }: MatrixRainProps) {
             className="absolute inset-0"
           />
 
-          {/* Message after 4 seconds - centered on top of canvas */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <AnimatePresence>
-              {showMessage && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="text-center z-10"
-                >
+          {/* Message after 4 seconds - slightly below the center of screen */}
+          <AnimatePresence>
+            {showMessage && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="fixed inset-0 flex items-center justify-center z-10 pointer-events-none"
+                style={{ transform: 'translateY(20%)' }} // Adjusted to position slightly below center
+              >
+                <div className="text-center">
                   <p className="text-5xl md:text-6xl font-display font-bold text-[#00d9ff] drop-shadow-lg">
-                    Waaw, you're so cool! 🔥
+                    Nice Try, Hacker.
                   </p>
                   <p className="text-lg text-[#a78bfa] mt-4 font-mono drop-shadow-lg">
-                    *hack successful*
+                    *hack successful (not really lol)*
                   </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>
