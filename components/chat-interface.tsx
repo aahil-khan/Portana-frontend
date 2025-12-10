@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect, forwardRef, useImperativeHandle, useMemo } from "react"
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react"
 import { Send } from "lucide-react"
 import { motion } from "framer-motion"
 import TopBar from "./top-bar"
@@ -16,7 +16,6 @@ import NeuralHubFAB from "./neural-hub-fab"
 import { CommandHandler } from "@/lib/command-handler"
 import { parseBackendResponse, type BackendResponse } from "@/lib/response-types"
 import { trackCommand, trackChatMessage } from "@/lib/analytics"
-import { chatApi } from "@/lib/api"
 
 interface Message {
   id: string
@@ -72,7 +71,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
   const commandItemsRef = useRef<(HTMLButtonElement | null)[]>([])
 
   const availableCommands = [
-    { command: "/about", description: "Learn about me" },
     { command: "/projects", description: "View portfolio projects" },
     { command: "/blog", description: "Latest blog posts" },
     { command: "/stack", description: "Tech stack and specialties" },
@@ -202,16 +200,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     onStartedChange?.(started)
   }, [started, onStartedChange])
 
-  const lastUserMessageIndex = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i]
-      if (m.sender === "user" && (m.content?.trim() ?? "") !== "") {
-        return i
-      }
-    }
-    return -1
-  }, [messages])
-
   const handleCommandSuggestion = async (command: string) => {
     try {
       // Handle start command locally
@@ -230,24 +218,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
           },
         }
         setMessages((prev) => [...prev, startMessage])
-        return
-      }
-
-      // Handle about command locally
-      if (command === "about") {
-        const aboutMessage: Message = {
-          id: Date.now().toString(),
-          content: "",
-          sender: "assistant",
-          timestamp: new Date(),
-          response: {
-            type: "command",
-            command: "about",
-            content: "",
-            data: null,
-          },
-        }
-        setMessages((prev) => [...prev, aboutMessage])
         return
       }
 
@@ -286,9 +256,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     setMessages((prev) => [...prev, userMessage])
     setInput("")
     setIsLoading(true)
-    
-    // Scroll to user message after DOM update
-    setTimeout(() => scrollUserMessageToTop(), 50)
 
     try {
       // First, check if it's a direct command
@@ -316,25 +283,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
             },
           }
           setMessages((prev) => [...prev, startMessage])
-          setIsLoading(false)
-          return
-        }
-        
-        // Handle about command locally
-        if (command === "about") {
-          const aboutMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            content: "",
-            sender: "assistant",
-            timestamp: new Date(),
-            response: {
-              type: "command",
-              command: "about",
-              content: "",
-              data: null,
-            },
-          }
-          setMessages((prev) => [...prev, aboutMessage])
           setIsLoading(false)
           return
         }
@@ -378,79 +326,45 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
           setMessages((prev) => [...prev, assistantMessage])
         }
       } else {
-        // Natural language query - use streaming API
+        // Natural language query - send to chat API
         trackChatMessage("natural_language")
-        
-        // Create placeholder message for streaming
-        const streamingMessageId = (Date.now() + 1).toString()
-        const streamingMessage: Message = {
-          id: streamingMessageId,
-          content: "",
-          sender: "assistant",
-          timestamp: new Date(),
-          isStreaming: true,
-        }
-        setMessages((prev) => [...prev, streamingMessage])
-
-        try {
-          let accumulatedContent = ""
-          let fullResponse = ""
-          let parsedData: BackendResponse | null = null
-          
-          // Stream the response
-          for await (const event of chatApi.ask({ sessionId, message: textToSend })) {
-            if (event.status === "connected") {
-              // Connection established
-              continue
-            } else if (event.status === "error") {
-              throw new Error(event.error || "Streaming error")
-            } else if (event.status === "done") {
-              // Stream complete
-              break
-            } else if (event.type === "chunk" && event.content) {
-              // Accumulate text chunks
-              accumulatedContent += event.content
-              
-              // Update streaming message with accumulated content
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === streamingMessageId
-                    ? { ...msg, content: accumulatedContent }
-                    : msg
-                )
-              )
-            } else if (event.type === "complete" && event.data) {
-              // Final parsed response
-              parsedData = event.data as BackendResponse
-              fullResponse = parsedData.content || accumulatedContent
-            }
+        const response = await fetch(
+          "https://portana-api.aahil-khan.tech/api/chat/message",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sessionId: sessionId,
+              message: textToSend,
+            }),
           }
+        )
 
-          // Update final message with parsed response
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === streamingMessageId
-                ? {
-                    ...msg,
-                    content: fullResponse || accumulatedContent,
-                    isStreaming: false,
-                    response: parsedData || undefined,
-                  }
-                : msg
-            )
-          )
-        } catch (streamError) {
-          console.error("Streaming error:", streamError)
-          // Remove streaming message and show error
-          setMessages((prev) => prev.filter((msg) => msg.id !== streamingMessageId))
-          
-          const errorMessage: Message = {
-            id: (Date.now() + 2).toString(),
-            content: "Sorry, I encountered an error while streaming the response. Please try again.",
+        if (!response.ok) throw new Error("Chat API error")
+
+        const data = await response.json()
+        
+        // Parse the response JSON string
+        const parsedResponse = parseBackendResponse(data.response)
+
+        if (parsedResponse) {
+          const assistantMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: parsedResponse.content,
+            sender: "assistant",
+            timestamp: new Date(),
+            response: parsedResponse,
+          }
+          setMessages((prev) => [...prev, assistantMessage])
+        } else {
+          // Fallback message if parsing fails
+          const assistantMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: data.response || "I couldn't process that request.",
             sender: "assistant",
             timestamp: new Date(),
           }
-          setMessages((prev) => [...prev, errorMessage])
+          setMessages((prev) => [...prev, assistantMessage])
         }
       }
     } catch (error) {
@@ -602,24 +516,14 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
           </div>
         ) : (
           <div className="max-w-4xl mx-auto w-full space-y-4 md:space-y-6">
-          {messages.map((msg, index) => {
-            const hasContent = msg.content && msg.content.trim() !== ""
-            const hasResponse = msg.response?.type === "text" || msg.response?.type === "hybrid" || msg.response?.type === "command"
-            const hasComponent = !!msg.component
-            
-            // Don't render empty containers
-            if (!hasContent && !hasResponse && !hasComponent) {
-              return null
-            }
-            
-            return (
+          {messages.map((msg, index) => (
             <div 
               key={msg.id} 
               className="space-y-2"
-              ref={msg.sender === "user" && index === lastUserMessageIndex ? lastUserMessageRef : null}
+              ref={msg.sender === "user" && index === messages.length - 1 ? lastUserMessageRef : null}
               style={msg.sender === "user" ? { scrollMarginTop: `${topBarOffset}px` } : undefined}
             >
-              {hasContent && <ChatMessage message={msg} />}
+              {msg.content && <ChatMessage message={msg} />}
 
               {/* Handle different response types */}
               {msg.response?.type === "text" && (
@@ -660,8 +564,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
               {/* Fallback for legacy component rendering */}
               {msg.component && <ContentCard component={msg.component} onComplete={msg.onComplete} />}
             </div>
-            )
-          })}
+          ))}
 
           {isLoading && (
             <div className="flex gap-2">
