@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react"
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle, useMemo } from "react"
 import { Send } from "lucide-react"
 import { motion } from "framer-motion"
 import TopBar from "./top-bar"
@@ -201,6 +201,16 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
   useEffect(() => {
     onStartedChange?.(started)
   }, [started, onStartedChange])
+
+  const lastUserMessageIndex = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]
+      if (m.sender === "user" && (m.content?.trim() ?? "") !== "") {
+        return i
+      }
+    }
+    return -1
+  }, [messages])
 
   const handleCommandSuggestion = async (command: string) => {
     try {
@@ -606,7 +616,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
             <div 
               key={msg.id} 
               className="space-y-2"
-              ref={msg.sender === "user" && index === messages.length - 2 ? lastUserMessageRef : null}
+              ref={msg.sender === "user" && index === lastUserMessageIndex ? lastUserMessageRef : null}
               style={msg.sender === "user" ? { scrollMarginTop: `${topBarOffset}px` } : undefined}
             >
               {hasContent && <ChatMessage message={msg} />}
