@@ -273,6 +273,26 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     const textToSend = messageText || input
     if (!textToSend.trim() || isLoading) return
 
+    // Easter egg: exact match on "aahil" (any case)
+    if (textToSend.trim().toLowerCase() === "aahil") {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        content: textToSend,
+        sender: "user",
+        timestamp: new Date(),
+      }
+      const reply: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "das me",
+        sender: "assistant",
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, userMessage, reply])
+      setInput("")
+      scrollUserMessageToTop()
+      return
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       content: textToSend,
