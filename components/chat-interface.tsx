@@ -177,10 +177,10 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     }
   }, [topBarOffset])
 
-  // Ctrl+ shift + P keyboard shortcut for command palette
+  // Ctrl+ i keyboard shortcut for command palette
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'l') {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
         e.preventDefault()
         setCommandPaletteOpen(prev => !prev)
       }
