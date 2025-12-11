@@ -116,13 +116,13 @@ export default function CommandDataRenderer({
                       </motion.button>
                     )}
                   </div>
-                  <motion.button
+                    <motion.button
                     whileHover={{ scale: 1.05, x: 5 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => onNavigate?.(`Tell me more about ${project.title}`)}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#00d9ff]/10 border border-[#00d9ff]/30 hover:bg-[#00d9ff]/20 hover:border-[#00d9ff]/50 transition-all text-[#00d9ff] text-xs font-medium"
+                    className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#00d9ff]/10 border border-[#00d9ff]/30 hover:bg-[#00d9ff]/20 hover:border-[#00d9ff]/50 transition-all text-[#00d9ff] text-xs font-medium"
                     type="button"
-                  >
+                    >
                     <span>know more</span>
                     <motion.span
                       animate={{ x: [0, 3, 0] }}

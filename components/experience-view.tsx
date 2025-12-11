@@ -94,7 +94,7 @@ export default function ExperienceView({ data, onNavigate }: ExperienceViewProps
                 const label = exp.company ? `${exp.title} at ${exp.company}` : exp.title
                 onNavigate?.(`Tell me more about what you did at ${exp.company}`)
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#00d9ff]/10 border border-[#00d9ff]/30 hover:bg-[#00d9ff]/20 hover:border-[#00d9ff]/50 transition-all text-[#00d9ff] text-xs font-medium"
+              className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#00d9ff]/10 border border-[#00d9ff]/30 hover:bg-[#00d9ff]/20 hover:border-[#00d9ff]/50 transition-all text-[#00d9ff] text-xs font-medium"
               type="button"
             >
               <span>know more</span>
