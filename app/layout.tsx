@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   title: "Portana",
   description: "An AI-powered futuristic portfolio with glassmorphism and terminal aesthetics",
   icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
+    icon: "/portana.svg",
+    apple: "/portana.svg",
   },
 }
 
