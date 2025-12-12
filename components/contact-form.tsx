@@ -79,7 +79,6 @@ export default function ContactForm({ formEndpoint }: ContactFormProps) {
     setStatus({ type: "loading" })
 
     try {
-      console.log("Submitting to:", finalFormEndpoint)
       const response = await fetch(finalFormEndpoint, {
         method: "POST",
         headers: {
@@ -88,9 +87,7 @@ export default function ContactForm({ formEndpoint }: ContactFormProps) {
         body: JSON.stringify(formData),
       })
 
-      console.log("Response status:", response.status)
       const result = await response.json()
-      console.log("Response data:", result)
 
       if (response.ok && result.success) {
         // Mark form as submitted in localStorage

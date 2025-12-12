@@ -19,8 +19,6 @@ export default function ResumeDownload({
   
   const finalDownloadUrl = useMemo(() => {
     const url = downloadUrl || `${API_URL}/api/misc/resume`
-    console.log("[ResumeDownload] API_URL:", API_URL)
-    console.log("[ResumeDownload] finalDownloadUrl:", url)
     return url
   }, [downloadUrl])
 
