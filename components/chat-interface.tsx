@@ -118,6 +118,16 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     shouldPinUserMessageRef.current = true
   }, [])
 
+  const lastUserMessageIndex = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]
+      if (m.sender === "user" && (m.content?.trim() ?? "") !== "") {
+        return i
+      }
+    }
+    return -1
+  }, [messages])
+
   const checkScrollPosition = () => {
     const container = scrollContainerRef.current
     if (!container) return
@@ -190,24 +200,9 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  useImperativeHandle(ref, () => ({
-    sendMessage: handleSendMessage,
-    started,
-  }))
-
   useEffect(() => {
     onStartedChange?.(started)
   }, [started, onStartedChange])
-
-  const lastUserMessageIndex = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i]
-      if (m.sender === "user" && (m.content?.trim() ?? "") !== "") {
-        return i
-      }
-    }
-    return -1
-  }, [messages])
 
   const handleCommandSuggestion = async (command: string) => {
     try {
@@ -447,6 +442,11 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
       setIsLoading(false)
     }
   }
+
+  useImperativeHandle(ref, () => ({
+    sendMessage: handleSendMessage,
+    started,
+  }))
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
