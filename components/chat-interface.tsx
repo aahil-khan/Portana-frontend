@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect, forwardRef, useImperativeHandle, useMemo } from "react"
+import { useState, useRef, useEffect, useLayoutEffect, useCallback, forwardRef, useImperativeHandle, useMemo } from "react"
 import { Send } from "lucide-react"
 import { motion } from "framer-motion"
 import TopBar from "./top-bar"
@@ -60,12 +60,14 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
   const [selectedCommandIndex, setSelectedCommandIndex] = useState(0)
   const [showScrollButton, setShowScrollButton] = useState(false)
   const [isUserScrolling, setIsUserScrolling] = useState(false)
-  const [topBarOffset, setTopBarOffset] = useState(0)
+  const [answerSpacerHeight, setAnswerSpacerHeight] = useState(0)
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const inputFooterRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const lastUserMessageRef = useRef<HTMLDivElement>(null)
+  const shouldPinUserMessageRef = useRef(false)
   const topBarRef = useRef<HTMLDivElement>(null)
   const commandMenuRef = useRef<HTMLDivElement>(null)
   const commandItemsRef = useRef<(HTMLButtonElement | null)[]>([])
@@ -86,12 +88,35 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     setShowScrollButton(false)
   }
 
-  const scrollUserMessageToTop = () => {
-    requestAnimationFrame(() => {
-      if (!lastUserMessageRef.current) return
-      lastUserMessageRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
-    })
-  }
+  const computeAnswerSpacerHeight = useCallback(() => {
+    const container = scrollContainerRef.current
+    if (!container) return 320
+
+    const userEl = lastUserMessageRef.current
+    const userHeight = userEl?.getBoundingClientRect().height ?? 80
+    // Fill the message pane so the latest user bubble can sit at the top with room below for the reply
+    return Math.max(280, container.clientHeight - userHeight - 24)
+  }, [])
+
+  const scrollUserMessageToTop = useCallback(() => {
+    const container = scrollContainerRef.current
+    const el = lastUserMessageRef.current
+    if (!container || !el) return
+
+    const align = () => {
+      const padding = 16 // matches scroll area py-4
+      const containerTop = container.getBoundingClientRect().top
+      const elTop = el.getBoundingClientRect().top
+      const target = container.scrollTop + (elTop - containerTop) - padding
+      container.scrollTo({ top: Math.max(0, target), behavior: "smooth" })
+    }
+
+    requestAnimationFrame(() => requestAnimationFrame(align))
+  }, [])
+
+  const requestPinLatestUserMessage = useCallback(() => {
+    shouldPinUserMessageRef.current = true
+  }, [])
 
   const checkScrollPosition = () => {
     const container = scrollContainerRef.current
@@ -104,16 +129,22 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     setShowScrollButton(distanceFromBottom > 100)
   }
 
-  // Don't auto-scroll on new messages - let user control their position
   useEffect(() => {
-    // Just check scroll position when messages change
     checkScrollPosition()
-    
-    // If last message is from user, scroll it to top
-    if (messages.length > 0 && messages[messages.length - 1].sender === "user") {
-      scrollUserMessageToTop()
-    }
   }, [messages])
+
+  // After a user message: reserve scroll space for the reply, then pin the bubble at the top
+  useLayoutEffect(() => {
+    if (!shouldPinUserMessageRef.current || lastUserMessageIndex < 0) return
+
+    shouldPinUserMessageRef.current = false
+    setAnswerSpacerHeight(computeAnswerSpacerHeight())
+  }, [messages, lastUserMessageIndex, computeAnswerSpacerHeight])
+
+  useLayoutEffect(() => {
+    if (answerSpacerHeight <= 0) return
+    scrollUserMessageToTop()
+  }, [answerSpacerHeight, messages, scrollUserMessageToTop])
 
   useEffect(() => {
     // Show commands when input starts with /
@@ -145,37 +176,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
     container.addEventListener("scroll", checkScrollPosition)
     return () => container.removeEventListener("scroll", checkScrollPosition)
   }, [])
-
-  useEffect(() => {
-    const topBarEl = topBarRef.current
-    if (!topBarEl) return
-
-    const updateOffset = () => {
-      const rect = topBarEl.getBoundingClientRect()
-      setTopBarOffset(rect.height + 16) // add a small breathing room below the bar
-    }
-
-    updateOffset()
-
-    if (typeof ResizeObserver !== "undefined") {
-      const observer = new ResizeObserver(updateOffset)
-      observer.observe(topBarEl)
-      return () => observer.disconnect()
-    } else {
-      window.addEventListener("resize", updateOffset)
-      return () => window.removeEventListener("resize", updateOffset)
-    }
-  }, [])
-
-  useEffect(() => {
-    const container = scrollContainerRef.current
-    if (!container || !topBarOffset) return
-
-    container.style.scrollPaddingTop = `${topBarOffset}px`
-    return () => {
-      container.style.scrollPaddingTop = ""
-    }
-  }, [topBarOffset])
 
   // Ctrl+ i keyboard shortcut for command palette
   useEffect(() => {
@@ -287,9 +287,9 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
         sender: "assistant",
         timestamp: new Date(),
       }
+      requestPinLatestUserMessage()
       setMessages((prev) => [...prev, userMessage, reply])
       setInput("")
-      scrollUserMessageToTop()
       return
     }
 
@@ -300,9 +300,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
       timestamp: new Date(),
     }
 
+    requestPinLatestUserMessage()
     setMessages((prev) => [...prev, userMessage])
-    // Ensure the latest user command scrolls into view before we append assistant responses
-    requestAnimationFrame(() => scrollUserMessageToTop())
     setInput("")
     setIsLoading(true)
 
@@ -599,7 +598,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
                 key={msg.id} 
                 className="space-y-2"
                 ref={msg.sender === "user" && index === lastUserMessageIndex ? lastUserMessageRef : null}
-                style={msg.sender === "user" ? { scrollMarginTop: `${topBarOffset}px` } : undefined}
+                style={msg.sender === "user" ? { scrollMarginTop: "16px" } : undefined}
               >
                 {hasContent && <ChatMessage message={msg} />}
 
@@ -652,6 +651,13 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
               <div className="w-2 h-2 bg-[#00d9ff] rounded-full animate-pulse delay-200"></div>
             </div>
           )}
+          {answerSpacerHeight > 0 && (
+            <div
+              aria-hidden
+              className="shrink-0 pointer-events-none"
+              style={{ minHeight: answerSpacerHeight }}
+            />
+          )}
           <div ref={messagesEndRef} />
           </div>
         )}
@@ -660,6 +666,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
 
 
       <motion.div
+        ref={inputFooterRef}
         className="shrink-0 border-t border-[#1e293b] bg-background/95 backdrop-blur px-3 md:px-8 py-4 md:py-6 z-40"
         style={{
           paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)",
