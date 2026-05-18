@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect } from "react"
 import { X, Github, Linkedin, Code2, BookOpen, Layers, Briefcase, Zap, FileText, Mail, User } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -12,19 +11,6 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({ isOpen, onClose, onNavigate, disabled = false }: MobileMenuProps) {
-
-  // Lock body scroll when menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "auto"
-    }
-
-    return () => {
-      document.body.style.overflow = "auto"
-    }
-  }, [isOpen])
 
   const navLinks = [
     { icon: User, label: "About", command: "/about" },

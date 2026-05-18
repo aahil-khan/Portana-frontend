@@ -502,19 +502,19 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
   }
 
   return (
-    <div className="flex flex-col min-h-dvh bg-background" style={{ minHeight: "100dvh" }}>
+    <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
       <div
         ref={topBarRef}
-        className="sticky z-50"
-        style={{ top: "env(safe-area-inset-top, 0px)" }}
+        className="shrink-0 z-50"
+        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <TopBar onNavigate={handleSendMessage} onMenuToggle={onMenuToggle} />
       </div>
 
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto px-3 md:px-8 py-4 md:py-6 space-y-4 md:space-y-6 overscroll-contain"
-        style={{ paddingBottom: "calc(100vh - 12rem)" }}
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 md:px-8 py-4 md:py-6 space-y-4 md:space-y-6"
+        style={{ paddingBottom: "max(6rem, env(safe-area-inset-bottom, 0px))" }}
       >
         {!started && messages.length === 0 ? (
           <div className="flex items-center justify-center min-h-[calc(100vh-12rem)]">
@@ -659,10 +659,9 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
 
 
 
-      <div
-        className="border-t border-[#1e293b] bg-background/95 backdrop-blur px-3 md:px-8 py-4 md:py-6 sticky z-40"
+      <motion.div
+        className="shrink-0 border-t border-[#1e293b] bg-background/95 backdrop-blur px-3 md:px-8 py-4 md:py-6 z-40"
         style={{
-          bottom: "env(safe-area-inset-bottom, 0px)",
           paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)",
         }}
       >
@@ -718,7 +717,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ onM
             </button>
           </form>
         </div>
-      </div>
+      </motion.div>
 
       {/* Command Palette - Desktop (Ctrl+P) & Mobile (Neural Hub FAB) */}
       <CommandPalette

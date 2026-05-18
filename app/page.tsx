@@ -38,12 +38,12 @@ export default function Home() {
     <>
       <BackgroundEffects />
 
-      <main className="min-h-screen bg-background">
+      <main className="h-dvh overflow-hidden bg-background">
         {showBoot && <BootScreen complete={bootComplete} />}
         {!showBoot && (
           <>
             <Sidebar onNavigate={handleSidebarNavigate} disabled={!started} />
-            <div className="lg:ml-20">
+            <div className="h-dvh min-h-0 lg:ml-20">
               <ChatInterface 
                 ref={chatInterfaceRef} 
                 onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
